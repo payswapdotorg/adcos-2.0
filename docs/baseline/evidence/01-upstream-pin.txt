@@ -1,0 +1,74 @@
+# VERBATIM — upstream pin verification (recorded 2026-10-12T11:33:12Z)
+
+$ git clone --depth 1 https://github.com/zai-org/ZCode.git zcode-upstream
+exit: 0
+
+$ git log -1 --format=... origin/main   # live upstream main observation
+commit aac4755666d09fdcd70272fcf063c077a639015f
+Author: wuweiqi <weiqi.wu@aminer.cn>
+Date:   2026-10-10 18:57:01 +0800
+Subject: feat: update to v3.15.1
+exit: 0
+
+$ git fetch --depth 1 origin 29628c9acdb81b703bbd4080c207a0e7ce5e276e
+exit: 0 (fetched into /home/z/zcode-upstream)
+
+$ git log -1 29628c9   # pinned baseline commit
+commit 29628c9acdb81b703bbd4080c207a0e7ce5e276e
+Author: wuweiqi <weiqi.wu@aminer.cn>
+Date:   2026-09-23 17:36:31 +0800
+Subject: feat: update v3.14.3
+exit: 0
+
+$ git rev-parse 29628c9^{tree}  # in upstream clone
+e7458be062f467b465abc91509adb0558e023605
+$ git rev-parse 29628c9^{tree}  # in ADCOS-2.0 clone (same object)
+e7458be062f467b465abc91509adb0558e023605
+
+$ git rev-parse 6ad4623^   # parent of first ADCOS architecture commit
+29628c9acdb81b703bbd4080c207a0e7ce5e276e
+
+$ git diff --stat 29628c9..HEAD   # ADCOS main vs pin
+ AGENTS.md                                  | 102 ++++--------
+ README.en.md                               | 212 +------------------------
+ README.md                                  | 242 ++++-------------------------
+ docs/LLM-ARCHITECT-HANDOFF.md              |  69 ++++++++
+ docs/research/ARCHITECTURE-REFERENCES.md   |  25 +++
+ scripts/check-project-spec.mjs             |  64 ++++++++
+ spec/UPSTREAM-ZCODE.md                     |  20 +++
+ spec/architecture/ADCOS-2.0.md             |  76 +++++++++
+ spec/architecture/INVARIANTS.md            |  43 +++++
+ spec/authority-model.md                    |  23 +++
+ spec/connectivity-resource-provider.md     |  44 ++++++
+ spec/cross-device-coordination.md          |  51 ++++++
+ spec/dependency-graph.md                   |  41 +++++
+ spec/development-state/current-state.json  |  41 +++++
+ spec/group-organizations-and-purchasing.md |  29 ++++
+ spec/reality-lab.md                        |  34 ++++
+ spec/work-orders.md                        |  63 ++++++++
+ 17 files changed, 693 insertions(+), 486 deletions(-)
+exit: 0
+
+$ git diff --name-status 29628c9..HEAD
+M	AGENTS.md
+M	README.en.md
+M	README.md
+A	docs/LLM-ARCHITECT-HANDOFF.md
+A	docs/research/ARCHITECTURE-REFERENCES.md
+A	scripts/check-project-spec.mjs
+A	spec/UPSTREAM-ZCODE.md
+A	spec/architecture/ADCOS-2.0.md
+A	spec/architecture/INVARIANTS.md
+A	spec/authority-model.md
+A	spec/connectivity-resource-provider.md
+A	spec/cross-device-coordination.md
+A	spec/dependency-graph.md
+A	spec/development-state/current-state.json
+A	spec/group-organizations-and-purchasing.md
+A	spec/reality-lab.md
+A	spec/work-orders.md
+exit: 0
+
+$ git rev-list --count 29628c9..origin/main   # upstream drift (observation only, in upstream clone)
+1
+ 11736 files changed, 1942850 insertions(+), 25090 deletions(-)
