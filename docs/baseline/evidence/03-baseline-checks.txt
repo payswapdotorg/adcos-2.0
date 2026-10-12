@@ -1,0 +1,86 @@
+# VERBATIM — baseline checks (recorded 2026-10-12T11:33:32Z, sandbox: 2 CPU / 4.1 GiB RAM / 8.0 GB free disk)
+
+## 1) spec checker
+$ node scripts/check-project-spec.mjs
+ADCOS 2.0 project-spec check PASSED (15 required files; current-state and frontier valid)
+exit: 0 (0.032s)
+
+## 2) install
+$ corepack pnpm install  (pnpm 10.33.2)
+node_modules/ssh2 install: Succeeded in building optional crypto binding
+. prepare: Done
+Done in 49.4s using pnpm v10.33.2
+exit: 0 (49.4s; native builds ssh2 crypto binding + node-pty electron rebuild OK; husky prepare OK; node_modules=2.6G)
+
+## 3) lint
+$ corepack pnpm run lint
+Found 70 warnings and 0 errors.
+Finished in 1.1s on 2617 files using 2 threads.
+exit: 0
+
+## 4) typecheck
+$ corepack pnpm run typecheck  (tsc -b, 11 projects)
+(no output — clean)
+exit: 0 (117s)
+
+## 5) fmt:check
+$ corepack pnpm run fmt:check
+Format issues found in above 38 files. Run without `--check` to fix.
+Finished in 4984ms on 2937 files using 2 threads.
+exit: 1 (38 files with format issues: 7 ADCOS-added docs/spec files + 31 inherited upstream package files)
+
+## 6) freshness
+$ node scripts/check-workspace-freshness.mjs
+[freshness] p0-w1/baseline-inventory 没有远端跟踪分支，跳过 behind-remote 检查（是否忘了 push -u？）
+[freshness] 基线新鲜：p0-w1/baseline-inventory，相对 origin/main：ahead 0 / behind 0（阈值 50）
+exit: 0
+
+## 7) architecture:check
+$ corepack pnpm run architecture:check
+architecture: OK
+violations: 0
+baseline: 0
+new: 0
+exit: 0
+
+## 8) verify:pre-push
+$ pnpm run verify:pre-push  (lint + architecture:check --changed)
+architecture: OK
+violations: 0
+baseline: 0
+new: 0
+exit: 0 (3s)
+
+## 9) build:bootstrap (packages subset)
+$ pnpm run build:bootstrap
+packages/web build: Killed
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @zcode/web@ build: `vite build`
+built OK before failure: @zcode/model-option-map, @zcode/formal-proof, @zcode/rpc, @zcode/provider, @zcode/provider-node, @zcode/zcode-server-cli, @zcode/server (incl. dist/remote/zcode-server.cjs via build:remote)
+exit: 137 (SIGKILL/OOM) — packages/web vite build killed during 'rendering chunks' (7737 modules transformed)
+
+## 10) web build retry (capped heap)
+$ NODE_OPTIONS=--max-old-space-size=2200 pnpm --filter @zcode/web build
+Killed
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @zcode/web@ build: `vite build`
+exit: 137 (12s, same OOM phase)
+
+## 11) desktop build (no runtime assets)
+$ pnpm --filter @zcode/desktop build:no-runtime-assets
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command was killed with SIGKILL (Forced termination): vite build
+      rejectRun(new Error(`${step.command} ${step.args.join(" ")} failed with ${reason}`));
+Error: pnpm exec vite build failed with code 1
+exit: 1 — inner 'pnpm exec vite build' killed with SIGKILL (OOM) via run-production-build.mjs
+
+## 12) zcode-cli app build (serialized)
+$ TURBO_CONCURRENCY=1 NODE_OPTIONS=--max-old-space-size=2400 pnpm --filter zcode-cli run build
+@zcode/cli:build:   dist/zcode.cjs      29.7mb ⚠️
+ Tasks:    16 successful, 16 total
+exit: 0 (61s; 16/16 tasks; dist/zcode.cjs 29.7mb + sourcemap 50.0mb)
+note: first parallel attempt (default concurrency) exited 137 — @zcode/core#build tsc OOM-killed at 7/11 tasks; serial retry with 7 turbo-cache hits succeeded
+
+## 13) inherited node:test files via tsx
+$ node --import tsx --test packages/services/test/*.test.ts packages/ui/test/*.test.ts
+ℹ tests 11
+ℹ pass 10
+ℹ fail 1
+exit: 1 — 10/11 pass; packages/ui/test/nonCliAcpRetirement.test.ts fails ERR_MODULE_NOT_FOUND: Cannot find package '@/lib' (ui path alias not resolvable by tsx runner)

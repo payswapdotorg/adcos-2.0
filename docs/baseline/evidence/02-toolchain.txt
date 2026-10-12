@@ -1,0 +1,43 @@
+# VERBATIM — toolchain pins (recorded 2026-10-12T11:33:32Z)
+
+$ cat .nvmrc
+24
+$ cat mise.toml (head -8)
+[tools]
+node = "24.14.0"
+pnpm = "10.33.2"
+
+[env]
+COREPACK_ENABLE_PROJECT_SPEC = "0"
+ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
+
+
+$ node -e "require(\"./package.json\")" — packageManager / engines / name / version
+{
+  "name": "zcode",
+  "version": "3.14.3",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}
+
+$ head -6 pnpm-lock.yaml
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+
+sandbox:
+$ node -v
+v24.21.0
+$ corepack pnpm -v   # corepack resolves the repo packageManager spec inside the repo
+10.33.2
+$ git --version
+git version 2.47.3
+$ mise --version
+mise: command not found (not installed in sandbox)
+
+notes: pnpm 10.33.2 (pin) obtained via corepack shim ~/.local/bin/pnpm; npx pnpm would give 12.11.2 (NOT used). Node v24.21.0 satisfies root engines >=24.0.0 but not apps/zcode-cli exact pin 24.14.0 (warning only).
