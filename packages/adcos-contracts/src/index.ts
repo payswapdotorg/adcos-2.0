@@ -19,7 +19,7 @@ export const ResourceProjectionReferenceSchema = z.object({
   type: z.string(), // resource type (phone/computer/router/etc.)
   capability: z.string(), // capability/version
   modes: z.array(z.string()), // supported modes
-  limits: z.record(z.number()), // capacity/schedule limits
+  limits: z.record(z.string(), z.number()), // capacity/schedule limits
   status: z.enum(['UNKNOWN', 'STALE', 'DEGRADED', 'FAILED', 'REJECTED', 'TERMINATED']),
   freshness: z.number().optional(), // timestamp
   evidence: z.array(z.string()).optional(), // evidence reference list
@@ -72,7 +72,7 @@ export const CapabilityObservationSchema = z.object({
       end: z.number().optional(),
       timezone: z.string().optional()
     }),
-    limits: z.record(z.number()),
+    limits: z.record(z.string(), z.number()),
     beneficiaries: z.array(z.string()).optional()
   }),
   observed: z.object({
@@ -148,7 +148,7 @@ export const DelegationSchema = z.object({
   scope: z.string(),
   issuedAt: z.number(),
   expiresAt: z.number().optional(),
-  attenuation: z.record(z.string()).optional(), // restrictions on delegated authority
+  attenuation: z.record(z.string(), z.string()).optional(), // restrictions on delegated authority
   revoked: z.boolean().default(false),
   revocationReason: z.string().optional()
 });
@@ -187,7 +187,7 @@ export type EventLifecycle = z.infer<typeof EventLifecycleSchema>;
 export const MessageSchema = z.object({
   id: z.string(),
   envelope: EnvelopeSchema,
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   lifecycle: EventLifecycleSchema,
   createdAt: z.number(),
   updatedAt: z.number()
@@ -214,8 +214,8 @@ export const OrganizationCandidateSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   principals: z.array(z.string()), // founding principals
-  requirements: z.record(z.unknown()).optional(),
-  capacity: z.record(z.number()).optional(),
+  requirements: z.record(z.string(), z.unknown()).optional(),
+  capacity: z.record(z.string(), z.number()).optional(),
   expiresAt: z.number().optional()
 });
 
@@ -294,7 +294,7 @@ export const GroupPurchaseRequestSchema = z.object({
   id: z.string(),
   intent: z.string(), // intent reference
   organization: z.string().optional(), // proposed organization
-  requirements: z.record(z.unknown()),
+  requirements: z.record(z.string(), z.unknown()),
   participants: z.array(z.string()), // participant IDs
   threshold: z.number(), // minimum participants
   expiresAt: z.number()
@@ -321,8 +321,8 @@ export const GroupPurchaseOfferSchema = z.object({
     description: z.string()
   })),
   oneTimeCharges: z.array(z.object({
-    amount: number,
-    description: string
+    amount: z.number(),
+    description: z.string()
   })),
   term: z.string(),
   limitations: z.array(z.string()),
@@ -340,7 +340,7 @@ export const GroupPurchaseCommitmentSchema = z.object({
   request: z.string(),
   offer: z.string(),
   participant: z.string(),
-  allocation: z.record(z.number()), // participant-specific allocation
+  allocation: z.record(z.string(), z.number()), // participant-specific allocation
   acceptedAt: z.number(),
   expiresAt: z.number().optional(),
   revoked: z.boolean().default(false)
@@ -373,7 +373,7 @@ export const LabComparisonEvidenceSchema = z.object({
     confidence: z.number(),
     assumptions: z.array(z.string())
   }),
-  comparison: z.record(z.unknown()), // comparison results
+  comparison: z.record(z.string(), z.unknown()), // comparison results
   evaluatedAt: z.number(),
   expiresAt: z.number().optional()
 });
@@ -443,7 +443,7 @@ export const ShareNetPortSchema = z.object({
   capabilities: z.array(z.string()),
   auth: z.object({
     provider: z.string(),
-    credentials: z.record(z.unknown())
+    credentials: z.record(z.string(), z.unknown())
   })
 });
 
@@ -455,7 +455,7 @@ export type ShareNetPort = z.infer<typeof ShareNetPortSchema>;
 export const AdcosPortSchema = z.object({
   version: SchemaVersionSchema,
   capabilities: z.array(z.string()),
-  endpoints: z.record(z.string()),
+  endpoints: z.record(z.string(), z.string()),
   auth: z.object({
     methods: z.array(z.string()),
     scopes: z.array(z.string())
@@ -467,6 +467,8 @@ export type AdcosPort = z.infer<typeof AdcosPortSchema>;
 // ============================================================================
 // Versioning Scheme
 // ============================================================================
+
+import { VERSION_COMPATIBILITY_MATRIX } from './versioning';
 
 /**
  * Version negotiation function
@@ -482,6 +484,21 @@ export const negotiateVersion = (client: SchemaVersion, server: SchemaVersion): 
     minor: Math.max(client.minor, server.minor),
     patch: 0 // Reset patch on version negotiation
   };
+};
+
+/**
+ * Check if an envelope is expired based on current time
+ */
+export const isEnvelopeExpired = (envelope: Envelope, now?: number): boolean => {
+  const currentTime = now || Date.now();
+  return envelope.expiresAt ? currentTime > envelope.expiresAt : false;
+};
+
+/**
+ * Validate scope against allowed values
+ */
+export const validateScope = (scope: string, allowedScopes: string[]): boolean => {
+  return allowedScopes.includes(scope);
 };
 
 // ============================================================================

@@ -2,7 +2,11 @@ import { z } from "zod";
 
 // Version negotiation and compatibility tests
 
-export const SchemaVersionSchema = z.string().regex(/^\d+\.\d+\.\d+$/);
+export const SchemaVersionSchema = z.object({
+  major: z.number(),
+  minor: z.number(),
+  patch: z.number()
+});
 
 export type SchemaVersion = z.infer<typeof SchemaVersionSchema>;
 
@@ -14,11 +18,11 @@ export interface VersionCompatibility {
 }
 
 // Version compatibility matrix
-const VERSION_COMPATIBILITY_MATRIX: Record<SchemaVersion, SchemaVersion[]> = {
-  "1.0.0": ["1.0.0"],
-  "1.1.0": ["1.0.0", "1.1.0"],
-  "1.2.0": ["1.0.0", "1.1.0", "1.2.0"],
-  "2.0.0": ["2.0.0"], // Breaking change - not compatible with 1.x
+export const VERSION_COMPATIBILITY_MATRIX: Record<string, SchemaVersion[]> = {
+  "1.0.0": [{ major: 1, minor: 0, patch: 0 }],
+  "1.1.0": [{ major: 1, minor: 0, patch: 0 }, { major: 1, minor: 1, patch: 0 }],
+  "1.2.0": [{ major: 1, minor: 0, patch: 0 }, { major: 1, minor: 1, patch: 0 }, { major: 1, minor: 2, patch: 0 }],
+  "2.0.0": [{ major: 2, minor: 0, patch: 0 }], // Breaking change - not compatible with 1.x
 };
 
 export class VersionManager implements VersionCompatibility {
@@ -39,7 +43,7 @@ export class VersionManager implements VersionCompatibility {
         }
         return 0;
       }
-    ) as SchemaVersion[];
+    ).map(v => ({ major: parseInt(v.split('.')[0]), minor: parseInt(v.split('.')[1]), patch: parseInt(v.split('.')[2]) }));
   }
 
   negotiateVersion(requested: SchemaVersion): SchemaVersion | null {
@@ -49,13 +53,9 @@ export class VersionManager implements VersionCompatibility {
     }
 
     // Try to find highest compatible version less than requested
-    const requestedParts = requested.split(".").map(Number);
-    
     for (const version of this.supported) {
-      const versionParts = version.split(".").map(Number);
-      
       // Check major version compatibility
-      if (versionParts[0] !== requestedParts[0]) {
+      if (version.major !== requested.major) {
         continue; // Skip different major versions
       }
       
@@ -69,8 +69,8 @@ export class VersionManager implements VersionCompatibility {
   }
 
   isCompatible(version: SchemaVersion): boolean {
-    const compatibleVersions = VERSION_COMPATIBILITY_MATRIX[this.current] || [];
-    return compatibleVersions.includes(version);
+    const compatibleVersions = VERSION_COMPATIBILITY_MATRIX[this.current.toString()] || [];
+    return compatibleVersions.some(v => v.major === version.major && v.minor === version.minor && v.patch === version.patch);
   }
 }
 

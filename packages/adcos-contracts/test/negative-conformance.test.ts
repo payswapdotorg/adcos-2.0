@@ -1,20 +1,20 @@
-import { z } from "zod";
-import { EnvelopeSchema } from "./envelope";
+import { describe, it, expect } from 'node:test';
+import { EnvelopeSchema, isEnvelopeExpired, validateScope } from '../src/index';
 
 // Negative conformance tests for contract schemas
 
 describe("Negative Conformance Tests", () => {
   describe("Duplicate Detection", () => {
-    test("should reject duplicate idempotency keys in envelope", () => {
+    it("should reject duplicate idempotency keys in envelope", () => {
       const envelope1 = EnvelopeSchema.parse({
-        schemaVersion: "1.0.0",
+        schema: { major: 1, minor: 0, patch: 0 },
         eventId: "test-event-1",
         commandId: "test-command",
-        senderInstanceId: "sender-1",
-        receiverInstanceId: "receiver-1",
+        sender: "sender-1",
+        receiver: "receiver-1",
         scope: "device",
-        issueTime: new Date().toISOString(),
-        expiryTime: new Date(Date.now() + 3600000).toISOString(),
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + 3600000,
         correlationId: "corr-1",
         causationId: "caus-1",
         idempotencyKey: "duplicate-key",
@@ -24,15 +24,15 @@ describe("Negative Conformance Tests", () => {
         signature: "sig1",
         payload: {
           type: "capability-observation",
-          capabilityId: "cap-1",
-          timestamp: new Date().toISOString()
+          capability: "cap-1",
+          timestamp: Date.now()
         }
       });
 
       const envelope2 = {
         ...envelope1,
         eventId: "test-event-2",
-        timestamp: new Date().toISOString()
+        timestamp: Date.now()
       };
 
       // Simulate duplicate detection logic
@@ -42,16 +42,16 @@ describe("Negative Conformance Tests", () => {
   });
 
   describe("Replay Detection", () => {
-    test("should reject replay of expired envelopes", () => {
+    it("should reject replay of expired envelopes", () => {
       const expiredEnvelope = {
-        schemaVersion: "1.0.0",
+        schema: { major: 1, minor: 0, patch: 0 },
         eventId: "replay-event",
         commandId: "test-command",
-        senderInstanceId: "sender-1",
-        receiverInstanceId: "receiver-1",
+        sender: "sender-1",
+        receiver: "receiver-1",
         scope: "device",
-        issueTime: "2023-01-01T00:00:00.000Z",
-        expiryTime: "2023-01-01T01:00:00.000Z",
+        issuedAt: Date.now() - 86400000, // 1 day ago
+        expiresAt: Date.now() - 3600000, // 1 hour ago
         correlationId: "corr-1",
         causationId: "caus-1",
         idempotencyKey: "unique-key",
@@ -61,29 +61,27 @@ describe("Negative Conformance Tests", () => {
         signature: "sig1",
         payload: {
           type: "capability-observation",
-          capabilityId: "cap-1",
-          timestamp: "2023-01-01T00:30:00.000Z"
+          capability: "cap-1",
+          timestamp: Date.now() - 1800000
         }
       };
 
-      // Check if envelope is expired
-      const now = new Date();
-      const expiryTime = new Date(expiredEnvelope.expiryTime);
-      expect(now.getTime()).toBeGreaterThan(expiryTime.getTime());
+      // Check if envelope is expired using the exported function
+      expect(isEnvelopeExpired(expiredEnvelope)).toBe(true);
     });
   });
 
   describe("Expiry Detection", () => {
-    test("should reject envelopes with past expiry time", () => {
+    it("should reject envelopes with past expiry time", () => {
       const pastEnvelope = {
-        schemaVersion: "1.0.0",
+        schema: { major: 1, minor: 0, patch: 0 },
         eventId: "expired-event",
         commandId: "test-command",
-        senderInstanceId: "sender-1",
-        receiverInstanceId: "receiver-1",
+        sender: "sender-1",
+        receiver: "receiver-1",
         scope: "device",
-        issueTime: "2023-01-01T00:00:00.000Z",
-        expiryTime: "2023-01-01T00:30:00.000Z",
+        issuedAt: Date.now() - 86400000, // 1 day ago
+        expiresAt: Date.now() - 3600000, // 1 hour ago
         correlationId: "corr-1",
         causationId: "caus-1",
         idempotencyKey: "unique-key",
@@ -93,29 +91,27 @@ describe("Negative Conformance Tests", () => {
         signature: "sig1",
         payload: {
           type: "capability-observation",
-          capabilityId: "cap-1",
-          timestamp: "2023-01-01T00:15:00.000Z"
+          capability: "cap-1",
+          timestamp: Date.now() - 1800000
         }
       };
 
-      // Check expiry validation
-      const now = new Date();
-      const expiryTime = new Date(pastEnvelope.expiryTime);
-      expect(expiryTime.getTime()).toBeLessThan(now.getTime());
+      // Check expiry validation using the exported function
+      expect(isEnvelopeExpired(pastEnvelope)).toBe(true);
     });
   });
 
   describe("Out-of-Scope Detection", () => {
-    test("should reject envelopes with invalid scope", () => {
+    it("should reject envelopes with invalid scope", () => {
       const invalidScopeEnvelope = {
-        schemaVersion: "1.0.0",
+        schema: { major: 1, minor: 0, patch: 0 },
         eventId: "invalid-scope-event",
         commandId: "test-command",
-        senderInstanceId: "sender-1",
-        receiverInstanceId: "receiver-1",
+        sender: "sender-1",
+        receiver: "receiver-1",
         scope: "invalid-scope", // Invalid scope value
-        issueTime: new Date().toISOString(),
-        expiryTime: new Date(Date.now() + 3600000).toISOString(),
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + 3600000,
         correlationId: "corr-1",
         causationId: "caus-1",
         idempotencyKey: "unique-key",
@@ -125,14 +121,14 @@ describe("Negative Conformance Tests", () => {
         signature: "sig1",
         payload: {
           type: "capability-observation",
-          capabilityId: "cap-1",
-          timestamp: new Date().toISOString()
+          capability: "cap-1",
+          timestamp: Date.now()
         }
       };
 
-      // Validate scope against allowed values
+      // Validate scope against allowed values using the exported function
       const allowedScopes = ["device", "group", "organization", "global"];
-      expect(allowedScopes).not.toContain(invalidScopeEnvelope.scope);
+      expect(validateScope(invalidScopeEnvelope.scope, allowedScopes)).toBe(false);
     });
   });
 });
