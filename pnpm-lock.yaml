@@ -803,7 +803,21 @@ importers:
         specifier: ^8.0.2
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.0)
 
-  packages/economics: {}
+  packages/economics:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/formal-proof:
     dependencies:
@@ -821,9 +835,43 @@ importers:
         specifier: ^8.0.2
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.0)
 
-  packages/group-purchasing: {}
+  packages/group-purchasing:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+      '@adcos/economics':
+        specifier: workspace:*
+        version: link:../economics
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
-  packages/lab: {}
+  packages/lab:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+      '@adcos/economics':
+        specifier: workspace:*
+        version: link:../economics
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/model-option-map:
     devDependencies:
@@ -831,7 +879,24 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
-  packages/organizations: {}
+  packages/organizations:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+      '@adcos/economics':
+        specifier: workspace:*
+        version: link:../economics
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/provider:
     dependencies:
@@ -1051,7 +1116,33 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
-  packages/simulation: {}
+  packages/simulation:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+      '@adcos/economics':
+        specifier: workspace:*
+        version: link:../economics
+      '@adcos/group-purchasing':
+        specifier: workspace:*
+        version: link:../group-purchasing
+      '@adcos/lab':
+        specifier: workspace:*
+        version: link:../lab
+      '@adcos/organizations':
+        specifier: workspace:*
+        version: link:../organizations
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/surfaces: {}
 
