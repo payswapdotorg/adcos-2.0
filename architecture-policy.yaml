@@ -37,6 +37,64 @@ modules:
     requires: [shared]
     publicEntrypoints: [packages/adcos-contracts/src/index.ts]
     owner: platform-substrate
+  # --- ADCOS 2.0 collective-economy domain (P2-W3 design §1.3; TL-serialized) ---
+  - id: economics
+    roots: [packages/economics/src]
+    managed: true
+    requires: [contracts]
+    publicEntrypoints: [packages/economics/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: collective-economy
+  - id: organizations
+    roots: [packages/organizations/src]
+    managed: true
+    requires: [contracts, economics]
+    publicEntrypoints: [packages/organizations/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: collective-economy
+  - id: group-purchasing
+    roots: [packages/group-purchasing/src]
+    managed: true
+    requires: [contracts, economics]
+    publicEntrypoints: [packages/group-purchasing/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: collective-economy
+  - id: lab
+    roots: [packages/lab/src]
+    managed: true
+    requires: [contracts, economics]
+    publicEntrypoints: [packages/lab/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: collective-economy
+  - id: simulation
+    roots: [packages/simulation/src]
+    managed: true
+    requires: [contracts, economics, organizations, group-purchasing, lab]
+    publicEntrypoints: [packages/simulation/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: collective-economy
+  # --- P2-W1 product surfaces; P2-W2 instance coordination (TL-serialized) ---
+  - id: surfaces
+    roots: [packages/surfaces/src]
+    managed: true
+    requires: [contracts, shared, ui, web]
+    publicEntrypoints: [packages/surfaces/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: product-surfaces
+  - id: coordination
+    roots: [packages/coordination/src]
+    managed: true
+    requires: [contracts, shared, services]
+    publicEntrypoints: [packages/coordination/src/contract.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: instance-coordination
   - id: client
     roots: [packages/client/src]
     managed: false

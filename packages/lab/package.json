@@ -1,0 +1,10 @@
+{
+  "name": "@adcos/lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reality Lab: baseline/no-change comparison, opportunity evidence, recommendations",
+  "type": "module",
+  "exports": {
+    ".": "./src/contract.ts"
+  }
+}

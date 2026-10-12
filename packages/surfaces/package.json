@@ -1,0 +1,10 @@
+{
+  "name": "@adcos/surfaces",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Product surfaces: customer/provider/member/admin journeys and role experience projections",
+  "type": "module",
+  "exports": {
+    ".": "./src/contract.ts"
+  }
+}

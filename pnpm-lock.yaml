@@ -638,6 +638,8 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
+  packages/coordination: {}
+
   packages/desktop:
     dependencies:
       '@arms/rum-electron':
@@ -801,6 +803,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.0)
 
+  packages/economics: {}
+
   packages/formal-proof:
     dependencies:
       d3:
@@ -817,11 +821,17 @@ importers:
         specifier: ^8.0.2
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.0)
 
+  packages/group-purchasing: {}
+
+  packages/lab: {}
+
   packages/model-option-map:
     devDependencies:
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
+
+  packages/organizations: {}
 
   packages/provider:
     dependencies:
@@ -1040,6 +1050,10 @@ importers:
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
+
+  packages/simulation: {}
+
+  packages/surfaces: {}
 
   packages/ui:
     dependencies:

@@ -1,0 +1,10 @@
+{
+  "name": "@adcos/simulation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simulation/shadow harness: reproducible scenario evaluation over fixed evidence snapshots",
+  "type": "module",
+  "exports": {
+    ".": "./src/contract.ts"
+  }
+}

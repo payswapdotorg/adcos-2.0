@@ -1,0 +1,10 @@
+{
+  "name": "@adcos/coordination",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Instance coordination: enrollment, capability discovery, delegation, durable inbox/outbox, transports via adapters",
+  "type": "module",
+  "exports": {
+    ".": "./src/contract.ts"
+  }
+}

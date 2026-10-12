@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P0_COMPLETE; P1_CONTRACTS_IN_PROGRESS",
+  "status": "P1_COMPLETE; P2_IN_PROGRESS",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -18,58 +18,87 @@
     "worker-2": "cross-device coordination, resource contribution, gateway runtime, and provider integration",
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
-  "frontier": ["P1-W1"],
-  "active_work_orders": ["P1-W1"],
-  "completed_work_orders": [{
-    "id": "ARCH-BASELINE-001",
-    "status": "SPECIFICATION_COMMITTED",
-    "evidence": [
-      "spec/architecture/ADCOS-2.0.md",
-      "spec/architecture/INVARIANTS.md",
-      "spec/authority-model.md",
-      "spec/connectivity-resource-provider.md",
-      "spec/cross-device-coordination.md",
-      "spec/reality-lab.md",
-      "spec/group-organizations-and-purchasing.md",
-      "spec/dependency-graph.md",
-      "spec/work-orders.md",
-      "docs/LLM-ARCHITECT-HANDOFF.md"
-    ],
-    "limitation": "Only architecture/governance documents are recorded as complete. No product feature, test suite, real-device forwarding, provider execution, or deployment is thereby declared implemented."
-  }, {
-    "id": "P0-W1",
-    "status": "ACCEPTED_MERGED",
-    "evidence": [
-      "merge 8264337 (branch p0-w1/baseline-inventory, commits 88fdaf3+ce66d31)",
-      "docs/baseline/substrate-inventory.md",
-      "docs/baseline/evidence/01-upstream-pin.txt",
-      "docs/baseline/evidence/02-toolchain.txt",
-      "docs/baseline/evidence/03-baseline-checks.txt"
-    ],
-    "limitation": "Renderer vite builds (@zcode/web, desktop bundle) deterministically OOM-kill in the 4.1 GiB worker sandbox — subset-build justification recorded; renderer bundling unverified in-sandbox, needs >=8 GB host or CI. fmt:check red on 31 inherited + 7 ADCOS-added files (debt recorded, not gate-blocking: verify:pre-push excludes fmt)."
-  }, {
-    "id": "P0-W2",
-    "status": "ACCEPTED_MERGED",
-    "evidence": [
-      "merge aebb785 (branch p0-w2/spec-checker, commits d2a402e+48e800a+aa5a408)",
-      "scripts/check-project-spec.mjs (hardened: --root, architecture version, 5 locked sections, unique work-order ids)",
-      "scripts/test-check-project-spec.mjs 9/9 PASSED (TL re-verified on aa5a408 worktree)",
-      "scripts/spec-check-fixtures/{missing-spec,invalid-json,unknown-frontier,duplicate-work-order}",
-      ".husky/pre-push gate wiring"
-    ],
-    "limitation": "Gate runs on git push in husky-enabled checkouts; no server-side CI exists in the repo yet."
-  }, {
-    "id": "P0-W3",
-    "status": "ACCEPTED_MERGED",
-    "evidence": [
-      "merge 85588f7 (branch p0-w3/capability-inventory, commits 41ba52d+d3e2b41+37f77d7)",
-      "docs/baseline/capability-inventory.md (81 evidence-backed rows, 5 TL decision gaps)",
-      "docs/research/integration-survey.md (sibling public state: ADCOS/ShareNet/RoamLink/UniCom/PaySwap)",
-      "docs/research/proof-plan.md",
-      "docs/research/test-harness-plan.md",
-      "spec/adr/ADR-0001..0005 (TL resolutions of gaps G-1..G-5)"
-    ],
-    "limitation": "Sibling repos shallow-cloned; test batteries counted statically, not re-executed. G-4 payment-rail selection deferred to operator (ADR-0004): any live-money acceptance item is BLOCKED-ON-OPERATOR, never faked."
-  }],
+  "frontier": [
+    "P2-W1",
+    "P2-W2",
+    "P2-W3"
+  ],
+  "active_work_orders": [
+    "P2-W1",
+    "P2-W2",
+    "P2-W3"
+  ],
+  "completed_work_orders": [
+    {
+      "id": "ARCH-BASELINE-001",
+      "status": "SPECIFICATION_COMMITTED",
+      "evidence": [
+        "spec/architecture/ADCOS-2.0.md",
+        "spec/architecture/INVARIANTS.md",
+        "spec/authority-model.md",
+        "spec/connectivity-resource-provider.md",
+        "spec/cross-device-coordination.md",
+        "spec/reality-lab.md",
+        "spec/group-organizations-and-purchasing.md",
+        "spec/dependency-graph.md",
+        "spec/work-orders.md",
+        "docs/LLM-ARCHITECT-HANDOFF.md"
+      ],
+      "limitation": "Only architecture/governance documents are recorded as complete. No product feature, test suite, real-device forwarding, provider execution, or deployment is thereby declared implemented."
+    },
+    {
+      "id": "P0-W1",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge 8264337 (branch p0-w1/baseline-inventory, commits 88fdaf3+ce66d31)",
+        "docs/baseline/substrate-inventory.md",
+        "docs/baseline/evidence/01-upstream-pin.txt",
+        "docs/baseline/evidence/02-toolchain.txt",
+        "docs/baseline/evidence/03-baseline-checks.txt"
+      ],
+      "limitation": "Renderer vite builds (@zcode/web, desktop bundle) deterministically OOM-kill in the 4.1 GiB worker sandbox — subset-build justification recorded; renderer bundling unverified in-sandbox, needs >=8 GB host or CI. fmt:check red on 31 inherited + 7 ADCOS-added files (debt recorded, not gate-blocking: verify:pre-push excludes fmt)."
+    },
+    {
+      "id": "P0-W2",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge aebb785 (branch p0-w2/spec-checker, commits d2a402e+48e800a+aa5a408)",
+        "scripts/check-project-spec.mjs (hardened: --root, architecture version, 5 locked sections, unique work-order ids)",
+        "scripts/test-check-project-spec.mjs 9/9 PASSED (TL re-verified on aa5a408 worktree)",
+        "scripts/spec-check-fixtures/{missing-spec,invalid-json,unknown-frontier,duplicate-work-order}",
+        ".husky/pre-push gate wiring"
+      ],
+      "limitation": "Gate runs on git push in husky-enabled checkouts; no server-side CI exists in the repo yet."
+    },
+    {
+      "id": "P0-W3",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge 85588f7 (branch p0-w3/capability-inventory, commits 41ba52d+d3e2b41+37f77d7)",
+        "docs/baseline/capability-inventory.md (81 evidence-backed rows, 5 TL decision gaps)",
+        "docs/research/integration-survey.md (sibling public state: ADCOS/ShareNet/RoamLink/UniCom/PaySwap)",
+        "docs/research/proof-plan.md",
+        "docs/research/test-harness-plan.md",
+        "spec/adr/ADR-0001..0005 (TL resolutions of gaps G-1..G-5)"
+      ],
+      "limitation": "Sibling repos shallow-cloned; test batteries counted statically, not re-executed. G-4 payment-rail selection deferred to operator (ADR-0004): any live-money acceptance item is BLOCKED-ON-OPERATOR, never faked."
+    },
+    {
+      "id": "P1-W1",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge 0de243d (branch p1-w1/shared-contracts, commits 2ee5722+d1b2cca+8a9679f)",
+        "packages/adcos-contracts (@adcos/contracts) — ESM package, zod 4.6.5 exact, exports map, public surface contract.ts + index.ts",
+        "src/schemas/{resource,coordination,economy,lab,ports}.ts — all contract families from the work order; module.ts manifest per managed-module artifact rule",
+        "src/versioning.ts — object-form SchemaVersion canonical, VERSION_COMPATIBILITY_MATRIX, single VersionManager negotiation API, VersionedSchema",
+        "src/authority-concerns.ts + src/authority-mapping.ts — 176-row field-to-authority table over a closed 13-concern vocabulary from spec/authority-model.md + real zod-shape validator (missing/stale/invalid detection)",
+        "docs/contracts/field-authority-mapping.md — regenerated from the table (single source of truth)",
+        "test suite: 76/76 green (schema validation, negative conformance incl. isEnvelopeExpired/createReplayGuard/validateScope, golden-path complete validation with coverage assertion, versioning matrix semantics, authority meta-tests)",
+        "gates on merged main: architecture:check 0 violations; lint 0 errors; spec checker PASSED; negative-fixture runner 9/9; contracts tsc clean; fmt:check 0 new failures vs recorded baseline",
+        "P2 module registration (economics, organizations, group-purchasing, lab, simulation, surfaces, coordination) applied with package skeletons (module.ts + contract.ts artifacts)"
+      ],
+      "limitation": "Full-repo typecheck deterministically OOMs in the 4.1 GiB sandbox (environmental, recorded since P0-W1); contracts package typechecks clean standalone. Envelope signatures are placeholders (no crypto); scope vocabulary is receiver-enforced (free-form per spec). Renderer builds still need >=8 GB host or CI."
+    }
+  ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
 }

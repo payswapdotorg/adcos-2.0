@@ -1,0 +1,10 @@
+{
+  "name": "@adcos/economics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Collective-economy domain: economic calculations, opportunity evaluation",
+  "type": "module",
+  "exports": {
+    ".": "./src/contract.ts"
+  }
+}
