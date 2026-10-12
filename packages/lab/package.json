@@ -2,9 +2,22 @@
   "name": "@adcos/lab",
   "version": "0.1.0",
   "private": true,
-  "description": "Reality Lab: baseline/no-change comparison, opportunity evidence, recommendations",
+  "description": "Reality Lab: baseline/no-change comparison, opportunity evidence and recommendations; advisory only — no external side effects",
   "type": "module",
   "exports": {
     ".": "./src/contract.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test test/**/*.test.ts"
+  },
+  "dependencies": {
+    "@adcos/contracts": "workspace:*",
+    "@adcos/economics": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
   }
 }

@@ -2,9 +2,21 @@
   "name": "@adcos/economics",
   "version": "0.1.0",
   "private": true,
-  "description": "Collective-economy domain: economic calculations, opportunity evaluation",
+  "description": "Collective-economy domain: economic calculations, opportunity evaluation, explicit costs and confidence",
   "type": "module",
   "exports": {
     ".": "./src/contract.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test test/**/*.test.ts"
+  },
+  "dependencies": {
+    "@adcos/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
   }
 }

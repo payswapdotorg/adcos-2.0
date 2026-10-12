@@ -1,7 +1,7 @@
 /**
- * group-purchasing 模块公开契约（骨架）。
- * P2 工作通道落地实现时在此声明对外类型与服务；消费方只允许从这里 import
- * （跨模块深导入被 architecture-policy 禁止）。当前为占位：模块已注册、
- * 边界已锁定，等待所属工作单交付。
+ * group-purchasing 模块公开契约：请求/报价/承诺流与门槛判定。
+ * 消费方只允许从这里 import。纯函数、注入时钟；短缺=THRESHOLD_NOT_MET、
+ * 过期=EXPIRED、无报价=COMMITMENT_OPEN —— 状态语义显式且可测。
  */
-export const grouppurchasingModuleStatus = "registered-awaiting-implementation" as const;
+export { evaluateCommitments, allocationTotal } from "./domain/threshold.js";
+export type { CommitmentEvaluation } from "./domain/threshold.js";
