@@ -31,6 +31,12 @@ modules:
     layers: { domain: domain, app: app, adapters: adapters }
     layerOrder: [domain, app, adapters]
     owner: desktop-settings
+  - id: contracts
+    roots: [packages/adcos-contracts/src]
+    managed: true
+    requires: [shared]
+    publicEntrypoints: [packages/adcos-contracts/src/index.ts]
+    owner: platform-substrate
   - id: client
     roots: [packages/client/src]
     managed: false
