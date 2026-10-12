@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P1_COMPLETE; P2_IN_PROGRESS (W3 TL slice merged; W1/W2 dispatched, queued)",
+  "status": "P1_COMPLETE; P2_IN_PROGRESS (W2+W3 TL slices merged; W1 dispatched, queued)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -112,6 +112,19 @@
         "34 tests green across the five packages; per-package tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
       ],
       "limitation": "PARTIAL slice of P2-W3 (TL-executed under deadline): order-lifecycle transitions after THRESHOLD_MET (AUTHORIZED/ORDERED/CONTRACTED/FULFILLED/RECONCILED/CANCELLED/REFUND_PENDING/DISPUTED) are not yet driven by an engine; member allocation detail workflows, subscription/SIM/equipment recommendation breadth and Org formation flows beyond the membership machine remain. The dispatched P2-W3 worker (p2w3, GLM-5.3-Flash) is still queued; if it lands, its output will be reviewed and merged on top."
+    },
+    {
+      "id": "P2-W2-TL-SLICE",
+      "status": "ACCEPTED_MERGED_PARTIAL",
+      "evidence": [
+        "merge of branch p2-w2/coordination-tl",
+        "packages/coordination — validateEnvelope (pre-dispatch gates: MALFORMED/EXPIRED/OUT_OF_SCOPE/STALE_POLICY_EPOCH/UNKNOWN_SENDER/OVERSIZED/REPLAY; failures aggregate in order; open-discovery mode explicit), createEnvelopeReplayGuard",
+        "beginProcessing/recordOutcome/isDeadLettered (EventLifecycle state machine; retry budget; dead-letter on exhaustion or Status.reconcile requirement)",
+        "checkDelegationChain (revocation/expiry/attenuation containment; prefix-scope coverage)",
+        "discoverResources (capability/mode/freshness matching; observed status beats declared; matched-on evidence trail)",
+        "34 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
+      ],
+      "limitation": "PARTIAL slice of P2-W2 (TL-executed under deadline): no transport adapters yet (durable storage, wire transport, ShareNet seam per ADR-0001), no two-separate-process physical verification, no physical-device forwarding evidence (P4-W2 territory). The dispatched P2-W2 worker (p2w2, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
