@@ -5,7 +5,7 @@
 - Branch: `p0-w1/baseline-inventory`
 - Baseline under review: ADCOS-2.0 `main` @ `6ba5dcdd03339a657951750c100a7b446a6d5624`
 - Upstream pin: zai-org/ZCode `29628c9acdb81b703bbd4080c207a0e7ce5e276e` (v3.14.3)
-- Evidence window: 2026-10-12, 11:16–12:0x UTC; all commands run in the pinned checkout on this branch (tree identical to `main` at `6ba5dcd`; no substrate files touched)
+- Evidence window: 2026-10-12, 11:16–11:45 UTC; all commands run in the pinned checkout on this branch (tree identical to `main` at `6ba5dcd`; no substrate files touched)
 - Verbatim command/output evidence: `docs/baseline/evidence/01-upstream-pin.txt`, `02-toolchain.txt`, `03-baseline-checks.txt`
 
 ---
@@ -89,7 +89,7 @@ This re-verification matches the observation already recorded in `spec/UPSTREAM-
 
 ## 3. Workspace map
 
-`pnpm-workspace.yaml` globs: `packages/*`, `apps/zcode-cli`, `apps/zcode-cli/packages/*`, `apps/zcode-cli/tools/*` — **33 packages with `package.json`** (root + 14 + 1 + 16 + 2). Two additional glob matches, `apps/zcode-cli/packages/bundled-skills` (skill markdown assets) and `apps/zcode-cli/packages/superpowers-plugin` (content + LICENSE only), have no `package.json` and are therefore **not** workspace packages. `apps/zcode-cli` is a plain directory tree (gitlink-free; no `.gitmodules` in either repo — the `git submodule update` call in `scripts/bootstrap.mjs` is a no-op vestige). `supportedArchitectures` pre-declares darwin/linux/win32 × x64/arm64 × glibc; `allowBuilds` gates native postinstalls (electron, node-pty, ssh2, esbuild, koffi, msw, protobufjs…).
+`pnpm-workspace.yaml` globs: `packages/*`, `apps/zcode-cli`, `apps/zcode-cli/packages/*`, `apps/zcode-cli/tools/*` — **33 packages with `package.json`** (root + 14 + 1 app + 15 cli subpackages + 2 tools). Two additional glob matches, `apps/zcode-cli/packages/bundled-skills` (skill markdown assets) and `apps/zcode-cli/packages/superpowers-plugin` (content + LICENSE only), have no `package.json` and are therefore **not** workspace packages. `apps/zcode-cli` is a plain directory tree (gitlink-free; no `.gitmodules` in either repo — the `git submodule update` call in `scripts/bootstrap.mjs` is a no-op vestige). `supportedArchitectures` pre-declares darwin/linux/win32 × x64/arm64 × glibc; `allowBuilds` gates native postinstalls (electron, node-pty, ssh2, esbuild, koffi, msw, protobufjs…).
 
 All workspace packages are `private: true` **except `@zcode/rpc`** (`private: false`, v1.0.0) — the only nominally publishable package.
 
