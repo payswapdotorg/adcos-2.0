@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P1_COMPLETE; P2_IN_PROGRESS (W2+W3 TL slices merged; W1 dispatched, queued)",
+  "status": "P1_COMPLETE; P2_ALL_LANES_STARTED (W1+W2+W3 TL domain slices merged; dispatched workers still queued for on-top review)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -125,6 +125,17 @@
         "34 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
       ],
       "limitation": "PARTIAL slice of P2-W2 (TL-executed under deadline): no transport adapters yet (durable storage, wire transport, ShareNet seam per ADR-0001), no two-separate-process physical verification, no physical-device forwarding evidence (P4-W2 territory). The dispatched P2-W2 worker (p2w2, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
+    },
+    {
+      "id": "P2-W1-TL-SLICE",
+      "status": "ACCEPTED_MERGED_PARTIAL",
+      "evidence": [
+        "merge of branch p2-w1/surfaces-tl",
+        "packages/surfaces — buildCustomerView (tenant isolation by ownership/membership/participation; threshold progress + own commitment; EXPIRED surfaced; opportunities scoped to visible intents), resourceShareState (REVOKED > PAUSED > SHARED doctrine, raw canonical status preserved), advanceConsent (opt-in/opt-out/pause/resume; explicit OPT_IN required, no silent resume)",
+        "surfaces module requires extended: contracts, shared, ui, web, economics, lab, organizations, group-purchasing (TL-serialized; manifest synced)",
+        "9 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures; spec checker PASSED"
+      ],
+      "limitation": "PARTIAL domain slice of P2-W1 (TL-executed under deadline): no browser UI yet — real user journeys through the substrate web/desktop stacks, responsive/accessibility checks, role isolation verified through the live service and negative/error UI flows remain for the next session. The dispatched P2-W1 worker (p2w1, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
