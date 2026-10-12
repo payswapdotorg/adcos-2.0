@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "ARCHITECTURE_BASELINE_COMMITTED; IMPLEMENTATION_NOT_STARTED",
+  "status": "ARCHITECTURE_BASELINE_COMMITTED; P0_EXECUTION_IN_PROGRESS (W1+W2 accepted; W3 in flight)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -18,8 +18,8 @@
     "worker-2": "cross-device coordination, resource contribution, gateway runtime, and provider integration",
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
-  "frontier": ["P0-W1", "P0-W2", "P0-W3"],
-  "active_work_orders": [],
+  "frontier": ["P0-W3"],
+  "active_work_orders": ["P0-W3"],
   "completed_work_orders": [{
     "id": "ARCH-BASELINE-001",
     "status": "SPECIFICATION_COMMITTED",
@@ -36,6 +36,28 @@
       "docs/LLM-ARCHITECT-HANDOFF.md"
     ],
     "limitation": "Only architecture/governance documents are recorded as complete. No product feature, test suite, real-device forwarding, provider execution, or deployment is thereby declared implemented."
+  }, {
+    "id": "P0-W1",
+    "status": "ACCEPTED_MERGED",
+    "evidence": [
+      "merge 8264337 (branch p0-w1/baseline-inventory, commits 88fdaf3+ce66d31)",
+      "docs/baseline/substrate-inventory.md",
+      "docs/baseline/evidence/01-upstream-pin.txt",
+      "docs/baseline/evidence/02-toolchain.txt",
+      "docs/baseline/evidence/03-baseline-checks.txt"
+    ],
+    "limitation": "Renderer vite builds (@zcode/web, desktop bundle) deterministically OOM-kill in the 4.1 GiB worker sandbox — subset-build justification recorded; renderer bundling unverified in-sandbox, needs >=8 GB host or CI. fmt:check red on 31 inherited + 7 ADCOS-added files (debt recorded, not gate-blocking: verify:pre-push excludes fmt)."
+  }, {
+    "id": "P0-W2",
+    "status": "ACCEPTED_MERGED",
+    "evidence": [
+      "merge aebb785 (branch p0-w2/spec-checker, commits d2a402e+48e800a+aa5a408)",
+      "scripts/check-project-spec.mjs (hardened: --root, architecture version, 5 locked sections, unique work-order ids)",
+      "scripts/test-check-project-spec.mjs 9/9 PASSED (TL re-verified on aa5a408 worktree)",
+      "scripts/spec-check-fixtures/{missing-spec,invalid-json,unknown-frontier,duplicate-work-order}",
+      ".husky/pre-push gate wiring"
+    ],
+    "limitation": "Gate runs on git push in husky-enabled checkouts; no server-side CI exists in the repo yet."
   }],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
 }
