@@ -1,57 +1,81 @@
-import { describe, test, expect } from "node:test";
-import { z } from "zod";
-import { VersionManager, SchemaVersion, VERSION_COMPATIBILITY_MATRIX } from "../src/versioning";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import {
+  SchemaVersionSchema,
+  VersionManager,
+  VERSION_COMPATIBILITY_MATRIX,
+  VersionedSchema,
+  versionKey,
+} from "../src/index.js";
 
-describe("Version Compatibility Tests", () => {
-  test("should validate schema versions", () => {
-    const validVersion: SchemaVersion = "1.0.0";
-    const invalidVersion = "invalid";
-    
-    expect(() => z.string().regex(/^\d+\.\d+\.\d+$/).parse(validVersion)).not.toThrow();
-    expect(() => z.string().regex(/^\d+\.\d+\.\d+$/).parse(invalidVersion)).toThrow();
+// Versioning conformance: the object form is the canonical SchemaVersion,
+// negotiation happens exclusively through VersionManager, and the
+// compatibility matrix keys are consistent with it.
+
+const v = (major: number, minor: number, patch: number) => ({ major, minor, patch });
+
+describe("Versioning (object-form SchemaVersion)", () => {
+  test("SchemaVersionSchema accepts nonnegative integer triples", () => {
+    assert.equal(SchemaVersionSchema.safeParse(v(1, 2, 3)).success, true);
+    assert.equal(SchemaVersionSchema.safeParse(v(0, 0, 0)).success, true);
   });
 
-  test("should negotiate compatible versions", () => {
-    const manager = new VersionManager("1.1.0");
-    
-    // Exact match
-    expect(manager.negotiateVersion("1.1.0")).toBe("1.1.0");
-    
-    // Compatible minor version
-    expect(manager.negotiateVersion("1.0.0")).toBe("1.0.0");
-    
-    // Incompatible major version
-    expect(manager.negotiateVersion("2.0.0")).toBeNull();
-    
-    // Compatible patch version
-    expect(manager.negotiateVersion("1.1.1")).toBe("1.1.0"); // Returns highest compatible
+  test("SchemaVersionSchema rejects negative, fractional, missing and string forms", () => {
+    assert.equal(SchemaVersionSchema.safeParse(v(-1, 0, 0)).success, false);
+    assert.equal(SchemaVersionSchema.safeParse({ major: 1.5, minor: 0, patch: 0 }).success, false);
+    assert.equal(SchemaVersionSchema.safeParse({ major: 1, minor: 0 }).success, false);
+    assert.equal(SchemaVersionSchema.safeParse("1.2.3").success, false);
+    assert.equal(SchemaVersionSchema.safeParse({ major: "1", minor: 0, patch: 0 }).success, false);
   });
 
-  test("should check version compatibility", () => {
-    const manager = new VersionManager("1.1.0");
-    
-    expect(manager.isCompatible("1.0.0")).toBe(true);
-    expect(manager.isCompatible("1.1.0")).toBe(true);
-    expect(manager.isCompatible("1.2.0")).toBe(false); // Not supported yet
-    expect(manager.isCompatible("2.0.0")).toBe(false); // Different major
+  test("versionKey renders major.minor.patch", () => {
+    assert.equal(versionKey(v(1, 2, 3)), "1.2.3");
   });
 
-  test("should handle breaking changes", () => {
-    const v1Manager = new VersionManager("1.2.0");
-    const v2Manager = new VersionManager("2.0.0");
-    
-    // V1 and V2 are not compatible
-    expect(v1Manager.negotiateVersion("2.0.0")).toBeNull();
-    expect(v2Manager.negotiateVersion("1.2.0")).toBeNull();
-    
-    // But V2 is compatible with itself
-    expect(v2Manager.negotiateVersion("2.0.0")).toBe("2.0.0");
-    expect(v2Manager.negotiateVersion("2.1.0")).toBe("2.0.0"); // Returns highest compatible
+  test("VERSION_COMPATIBILITY_MATRIX keys and entries are well-formed", () => {
+    for (const [key, supported] of Object.entries(VERSION_COMPATIBILITY_MATRIX)) {
+      assert.match(key, /^\d+\.\d+\.\d+$/);
+      for (const prior of supported) {
+        assert.match(versionKey(prior), /^\d+\.\d+\.\d+$/);
+      }
+    }
   });
 
-  test("should support version matrix", () => {
-    expect(VERSION_COMPATIBILITY_MATRIX["1.0.0"]).toEqual(["1.0.0"]);
-    expect(VERSION_COMPATIBILITY_MATRIX["1.1.0"]).toEqual(["1.0.0", "1.1.0"]);
-    expect(VERSION_COMPATIBILITY_MATRIX["2.0.0"]).toEqual(["2.0.0"]);
+  test("VersionManager.isCompatible: self, listed priors, unknowns, other majors", () => {
+    const manager = new VersionManager(v(1, 2, 0));
+    assert.equal(manager.isCompatible(v(1, 2, 0)), true); // self
+    assert.equal(manager.isCompatible(v(1, 1, 0)), true); // listed prior
+    assert.equal(manager.isCompatible(v(1, 0, 0)), true); // listed prior
+    assert.equal(manager.isCompatible(v(1, 9, 9)), false); // unknown minor
+    assert.equal(manager.isCompatible(v(2, 0, 0)), false); // other major
+  });
+
+  test("VersionManager.negotiateVersion returns the requested version when compatible", () => {
+    const manager = new VersionManager(v(1, 2, 0));
+    assert.deepEqual(manager.negotiateVersion(v(1, 1, 0)), v(1, 1, 0));
+    assert.deepEqual(manager.negotiateVersion(v(1, 2, 0)), v(1, 2, 0));
+  });
+
+  test("VersionManager.negotiateVersion downgrades unknown requests to the highest known prior", () => {
+    const manager = new VersionManager(v(1, 2, 0));
+    assert.deepEqual(manager.negotiateVersion(v(1, 9, 0)), v(1, 1, 0));
+  });
+
+  test("VersionManager.negotiateVersion returns null across a breaking major", () => {
+    const manager = new VersionManager(v(2, 0, 0));
+    assert.equal(manager.negotiateVersion(v(1, 2, 0)), null);
+    assert.equal(manager.isCompatible(v(1, 0, 0)), false);
+  });
+
+  test("VersionManager with an unlisted current version supports only itself", () => {
+    const manager = new VersionManager(v(3, 4, 5));
+    assert.deepEqual(manager.supported, []);
+    assert.equal(manager.isCompatible(v(3, 4, 5)), true);
+    assert.equal(manager.negotiateVersion(v(3, 4, 4)), null);
+  });
+
+  test("VersionedSchema carries the object-form schemaVersion", () => {
+    assert.equal(VersionedSchema.safeParse({ schemaVersion: v(1, 0, 0) }).success, true);
+    assert.equal(VersionedSchema.safeParse({ schemaVersion: "1.0.0" }).success, false);
   });
 });
