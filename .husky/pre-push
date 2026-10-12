@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# ADCOS 2.0 project-spec conformance gate (work order P0-W2).
+#
+# Wired into the repository's existing husky installation: "prepare": "husky"
+# in package.json sets core.hooksPath to .husky/ on pnpm install, so this
+# gate runs on every git push without any additional CI system. The checker
+# is dependency-free (node: builtins only), so it works in any checkout with
+# Node >= 18 even before workspace dependencies are installed.
+node scripts/check-project-spec.mjs
