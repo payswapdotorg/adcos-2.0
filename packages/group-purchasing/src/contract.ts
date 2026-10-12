@@ -5,3 +5,5 @@
  */
 export { evaluateCommitments, allocationTotal } from "./domain/threshold.js";
 export type { CommitmentEvaluation } from "./domain/threshold.js";
+export { advanceOrder, refundAdmissible } from "./domain/order-lifecycle.js";
+export type { OrderEvent, OrderGuards, OrderTransition } from "./domain/order-lifecycle.js";
