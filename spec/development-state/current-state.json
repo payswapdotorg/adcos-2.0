@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "ARCHITECTURE_BASELINE_COMMITTED; P0_EXECUTION_IN_PROGRESS (W1+W2 accepted; W3 in flight)",
+  "status": "P0_COMPLETE; P1_CONTRACTS_IN_PROGRESS",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -18,8 +18,8 @@
     "worker-2": "cross-device coordination, resource contribution, gateway runtime, and provider integration",
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
-  "frontier": ["P0-W3"],
-  "active_work_orders": ["P0-W3"],
+  "frontier": ["P1-W1"],
+  "active_work_orders": ["P1-W1"],
   "completed_work_orders": [{
     "id": "ARCH-BASELINE-001",
     "status": "SPECIFICATION_COMMITTED",
@@ -58,6 +58,18 @@
       ".husky/pre-push gate wiring"
     ],
     "limitation": "Gate runs on git push in husky-enabled checkouts; no server-side CI exists in the repo yet."
+  }, {
+    "id": "P0-W3",
+    "status": "ACCEPTED_MERGED",
+    "evidence": [
+      "merge 85588f7 (branch p0-w3/capability-inventory, commits 41ba52d+d3e2b41+37f77d7)",
+      "docs/baseline/capability-inventory.md (81 evidence-backed rows, 5 TL decision gaps)",
+      "docs/research/integration-survey.md (sibling public state: ADCOS/ShareNet/RoamLink/UniCom/PaySwap)",
+      "docs/research/proof-plan.md",
+      "docs/research/test-harness-plan.md",
+      "spec/adr/ADR-0001..0005 (TL resolutions of gaps G-1..G-5)"
+    ],
+    "limitation": "Sibling repos shallow-cloned; test batteries counted statically, not re-executed. G-4 payment-rail selection deferred to operator (ADR-0004): any live-money acceptance item is BLOCKED-ON-OPERATOR, never faked."
   }],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
 }
