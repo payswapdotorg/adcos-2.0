@@ -1,83 +1,98 @@
 import { z } from "zod";
 
-// Version negotiation and compatibility tests
+// ============================================================================
+// Canonical SchemaVersion (object form) — single source of truth
+// ============================================================================
 
+/**
+ * Canonical schema version representation (object form).
+ * Used by Envelope.schema, AdcosPort.version and all versioned payloads.
+ * The string form "major.minor.patch" is only a wire/rendering concern
+ * (see versionKey); parsers never accept it as this type.
+ */
 export const SchemaVersionSchema = z.object({
-  major: z.number(),
-  minor: z.number(),
-  patch: z.number()
+  major: z.number().int().nonnegative(),
+  minor: z.number().int().nonnegative(),
+  patch: z.number().int().nonnegative(),
 });
 
 export type SchemaVersion = z.infer<typeof SchemaVersionSchema>;
 
-export interface VersionCompatibility {
-  current: SchemaVersion;
-  supported: SchemaVersion[];
-  negotiateVersion: (requested: SchemaVersion) => SchemaVersion | null;
-  isCompatible: (version: SchemaVersion) => boolean;
-}
+/** Render a SchemaVersion as its "major.minor.patch" key form. */
+export const versionKey = (v: SchemaVersion): string => `${v.major}.${v.minor}.${v.patch}`;
 
-// Version compatibility matrix
+const sameVersion = (a: SchemaVersion, b: SchemaVersion): boolean =>
+  a.major === b.major && a.minor === b.minor && a.patch === b.patch;
+
+/**
+ * Version compatibility matrix: maps a version key to the list of PRIOR
+ * versions it remains wire-compatible with. The entry's own version is
+ * always compatible with itself (implicit; not listed).
+ */
 export const VERSION_COMPATIBILITY_MATRIX: Record<string, SchemaVersion[]> = {
-  "1.0.0": [{ major: 1, minor: 0, patch: 0 }],
-  "1.1.0": [{ major: 1, minor: 0, patch: 0 }, { major: 1, minor: 1, patch: 0 }],
-  "1.2.0": [{ major: 1, minor: 0, patch: 0 }, { major: 1, minor: 1, patch: 0 }, { major: 1, minor: 2, patch: 0 }],
-  "2.0.0": [{ major: 2, minor: 0, patch: 0 }], // Breaking change - not compatible with 1.x
+  "1.0.0": [],
+  "1.1.0": [{ major: 1, minor: 0, patch: 0 }],
+  "1.2.0": [
+    { major: 1, minor: 0, patch: 0 },
+    { major: 1, minor: 1, patch: 0 },
+  ],
+  "2.0.0": [], // breaking release: no 1.x compatibility
 };
 
+export interface VersionCompatibility {
+  readonly current: SchemaVersion;
+  readonly supported: readonly SchemaVersion[];
+  negotiateVersion(requested: SchemaVersion): SchemaVersion | null;
+  isCompatible(version: SchemaVersion): boolean;
+}
+
+/**
+ * Version negotiation manager — the single negotiation API of the contracts
+ * surface. Deep imports are forbidden by architecture-policy; consumers use
+ * the re-exports from src/index.ts.
+ */
 export class VersionManager implements VersionCompatibility {
-  current: SchemaVersion;
-  supported: SchemaVersion[];
+  readonly current: SchemaVersion;
+  readonly supported: readonly SchemaVersion[];
 
   constructor(current: SchemaVersion) {
     this.current = current;
-    this.supported = Object.keys(VERSION_COMPATIBILITY_MATRIX).sort(
-      (a, b) => {
-        const aParts = a.split(".").map(Number);
-        const bParts = b.split(".").map(Number);
-        
-        for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-          if (aParts[i] !== bParts[i]) {
-            return aParts[i] - bParts[i];
-          }
-        }
-        return 0;
-      }
-    ).map(v => ({ major: parseInt(v.split('.')[0]), minor: parseInt(v.split('.')[1]), patch: parseInt(v.split('.')[2]) }));
-  }
-
-  negotiateVersion(requested: SchemaVersion): SchemaVersion | null {
-    // First try exact match
-    if (this.isCompatible(requested)) {
-      return requested;
-    }
-
-    // Try to find highest compatible version less than requested
-    for (const version of this.supported) {
-      // Check major version compatibility
-      if (version.major !== requested.major) {
-        continue; // Skip different major versions
-      }
-      
-      // Check if version is compatible
-      if (this.isCompatible(version)) {
-        return version;
-      }
-    }
-
-    return null;
+    this.supported = VERSION_COMPATIBILITY_MATRIX[versionKey(current)] ?? [];
   }
 
   isCompatible(version: SchemaVersion): boolean {
-    const compatibleVersions = VERSION_COMPATIBILITY_MATRIX[this.current.toString()] || [];
-    return compatibleVersions.some(v => v.major === version.major && v.minor === version.minor && v.patch === version.patch);
+    return (
+      sameVersion(this.current, version) || this.supported.some((v) => sameVersion(v, version))
+    );
+  }
+
+  /**
+   * Negotiate a mutually usable version.
+   * - returns `requested` when it is compatible with this manager's current version;
+   * - otherwise returns the highest supported version with the same major that
+   *   does not exceed the requested version;
+   * - otherwise returns null (no overlap — e.g. across a breaking major).
+   */
+  negotiateVersion(requested: SchemaVersion): SchemaVersion | null {
+    if (this.isCompatible(requested)) {
+      return requested;
+    }
+    const candidates = this.supported
+      .filter((v) => v.major === requested.major)
+      .filter(
+        (v) =>
+          v.minor < requested.minor || (v.minor === requested.minor && v.patch <= requested.patch),
+      )
+      .sort((a, b) => b.minor - a.minor || b.patch - a.patch);
+    return candidates[0] ?? null;
   }
 }
 
-// Schema with version field
+/**
+ * Mixin for versioned payloads.
+ */
 export const VersionedSchema = z.object({
   schemaVersion: SchemaVersionSchema,
-  // Other fields would go here
 });
 
 export type Versioned = z.infer<typeof VersionedSchema>;
