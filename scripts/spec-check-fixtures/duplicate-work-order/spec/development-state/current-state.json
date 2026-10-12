@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "architecture_version": "stub-arch-2026-01-01",
+  "repository": "payswapdotorg/ADCOS-2.0",
+  "branch": "main",
+  "source_of_truth": "repository",
+  "max_concurrent_direct_workers": 3,
+  "tech_lead_is_worker": false,
+  "frontier": ["P0-W2"],
+  "active_work_orders": [],
+  "completed_work_orders": []
+}
