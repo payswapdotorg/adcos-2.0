@@ -6,7 +6,7 @@
  */
 export const surfacesModule = {
   id: "surfaces",
-  requires: ["contracts", "shared", "ui", "web"],
+  requires: ["contracts", "shared", "ui", "web", "economics", "lab", "organizations", "group-purchasing"],
   provides: ["surfaces"],
   publicEntrypoints: ["contract.ts"],
 } as const;

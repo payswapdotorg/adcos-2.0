@@ -1158,7 +1158,33 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  packages/surfaces: {}
+  packages/surfaces:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+      '@adcos/economics':
+        specifier: workspace:*
+        version: link:../economics
+      '@adcos/group-purchasing':
+        specifier: workspace:*
+        version: link:../group-purchasing
+      '@adcos/lab':
+        specifier: workspace:*
+        version: link:../lab
+      '@adcos/organizations':
+        specifier: workspace:*
+        version: link:../organizations
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/ui:
     dependencies:
