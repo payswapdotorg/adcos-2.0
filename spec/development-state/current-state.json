@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P1_COMPLETE; P2_IN_PROGRESS",
+  "status": "P1_COMPLETE; P2_IN_PROGRESS (W3 TL slice merged; W1/W2 dispatched, queued)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -98,6 +98,20 @@
         "P2 module registration (economics, organizations, group-purchasing, lab, simulation, surfaces, coordination) applied with package skeletons (module.ts + contract.ts artifacts)"
       ],
       "limitation": "Full-repo typecheck deterministically OOMs in the 4.1 GiB sandbox (environmental, recorded since P0-W1); contracts package typechecks clean standalone. Envelope signatures are placeholders (no crypto); scope vocabulary is receiver-enforced (free-form per spec). Renderer builds still need >=8 GB host or CI."
+    },
+    {
+      "id": "P2-W3-TL-SLICE",
+      "status": "ACCEPTED_MERGED_PARTIAL",
+      "evidence": [
+        "merge of branch p2-w3/lab-economy-tl (commit 6b4a32a)",
+        "packages/economics — evaluateOpportunity (explicit EvaluationPolicy: minConfidence/minSaving/maxAssumptions/reliability tolerance; INSUFFICIENT_EVIDENCE vs REJECT semantics), summarizeOfferCosts (charge rollup + stated-total verification)",
+        "packages/lab — runComparison (deterministic baseline/no-change comparison producing canonical LabComparisonEvidence; explicit missing-metric confidence penalty; injected clock), asOpportunityEvidence (advisory only)",
+        "packages/organizations — advanceMembership (explicit lifecycle state machine; REVOKED terminal; expiry fail-closed), mandateCovers (prefix-scope semantics)",
+        "packages/group-purchasing — evaluateCommitments (threshold met/shortfall/expiry; duplicates counted once; revoked/expired/foreign commitments skipped with notes)",
+        "packages/simulation — runScenario shadow harness driving lab→economics→group-purchasing over fixed snapshots; reproducibility asserted by deepEqual tests",
+        "34 tests green across the five packages; per-package tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
+      ],
+      "limitation": "PARTIAL slice of P2-W3 (TL-executed under deadline): order-lifecycle transitions after THRESHOLD_MET (AUTHORIZED/ORDERED/CONTRACTED/FULFILLED/RECONCILED/CANCELLED/REFUND_PENDING/DISPUTED) are not yet driven by an engine; member allocation detail workflows, subscription/SIM/equipment recommendation breadth and Org formation flows beyond the membership machine remain. The dispatched P2-W3 worker (p2w3, GLM-5.3-Flash) is still queued; if it lands, its output will be reviewed and merged on top."
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
