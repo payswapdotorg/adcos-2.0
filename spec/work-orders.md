@@ -9,8 +9,8 @@ Acceptance: preserve licenses/notices; compare against upstream commit; inspect 
 
 ## P0-W2 — Project-spec conformance and governance gate
 Owner: Worker 2. Owned outputs: scripts/check-project-spec.mjs and explicitly assigned CI/checker files only.
-Outputs: validate required specs, current-state JSON, frontier IDs, unique work-order IDs, architecture version and key locked sections; add negative fixtures for missing spec, invalid JSON, and unknown work ID. Preserve inherited architecture-policy behavior.
-Acceptance: checker passes against current documents and fails the negative fixtures; record actual commands/results.
+Starter: scripts/check-project-spec.mjs is already committed by ARCH-BASELINE-001. Harden it rather than recreating it: validate required specs, current-state JSON, frontier references, unique work-order IDs, architecture version and required locked sections; add negative fixtures for a missing spec, invalid JSON, unknown frontier ID, and duplicate work-order ID. Wire the checker into the smallest appropriate existing CI/verification hook while preserving inherited architecture-policy behavior.
+Acceptance: run node scripts/check-project-spec.mjs in an actual checkout; checker passes current documents and fails each negative fixture; relevant CI/verification command runs it; record actual commands/results.
 
 ## P0-W3 — Capability, integration, security and evidence inventory
 Owner: Worker 3. Owned outputs: docs/baseline/capability-inventory.md, docs/research/ and proof/test-plan artifacts.
