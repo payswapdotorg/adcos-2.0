@@ -1135,6 +1135,9 @@ importers:
       '@adcos/contracts':
         specifier: workspace:*
         version: link:../adcos-contracts
+      '@adcos/coordination':
+        specifier: workspace:*
+        version: link:../coordination
       '@adcos/economics':
         specifier: workspace:*
         version: link:../economics
@@ -1147,6 +1150,9 @@ importers:
       '@adcos/organizations':
         specifier: workspace:*
         version: link:../organizations
+      '@adcos/surfaces':
+        specifier: workspace:*
+        version: link:../surfaces
     devDependencies:
       '@types/node':
         specifier: ^20.10.0

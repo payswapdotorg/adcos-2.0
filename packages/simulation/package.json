@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@adcos/contracts": "workspace:*",
+    "@adcos/coordination": "workspace:*",
     "@adcos/economics": "workspace:*",
     "@adcos/group-purchasing": "workspace:*",
     "@adcos/lab": "workspace:*",
-    "@adcos/organizations": "workspace:*"
+    "@adcos/organizations": "workspace:*",
+    "@adcos/surfaces": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
