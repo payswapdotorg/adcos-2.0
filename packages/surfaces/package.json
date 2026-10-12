@@ -2,9 +2,25 @@
   "name": "@adcos/surfaces",
   "version": "0.1.0",
   "private": true,
-  "description": "Product surfaces: customer/provider/member/admin journeys and role experience projections",
+  "description": "Product surfaces: role experience projections (customer, provider, member, admin) with tenant isolation and explicit states",
   "type": "module",
   "exports": {
     ".": "./src/contract.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test test/**/*.test.ts"
+  },
+  "dependencies": {
+    "@adcos/contracts": "workspace:*",
+    "@adcos/economics": "workspace:*",
+    "@adcos/group-purchasing": "workspace:*",
+    "@adcos/lab": "workspace:*",
+    "@adcos/organizations": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
   }
 }

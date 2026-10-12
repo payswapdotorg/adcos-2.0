@@ -82,7 +82,7 @@ modules:
   - id: surfaces
     roots: [packages/surfaces/src]
     managed: true
-    requires: [contracts, shared, ui, web]
+    requires: [contracts, shared, ui, web, economics, lab, organizations, group-purchasing]
     publicEntrypoints: [packages/surfaces/src/contract.ts]
     layers: { domain: domain, app: app, adapters: adapters }
     layerOrder: [domain, app, adapters]
