@@ -638,7 +638,21 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
-  packages/coordination: {}
+  packages/coordination:
+    dependencies:
+      '@adcos/contracts':
+        specifier: workspace:*
+        version: link:../adcos-contracts
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.6.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
 
   packages/desktop:
     dependencies:
