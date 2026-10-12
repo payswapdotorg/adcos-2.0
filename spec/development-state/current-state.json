@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P1_COMPLETE; P2_ALL_LANES_STARTED (W1+W2+W3 TL domain slices merged; dispatched workers still queued for on-top review)",
+  "status": "P1_COMPLETE; P2_ALL_LANES_STARTED (TL domain slices + order lifecycle merged; dispatched workers still queued for on-top review)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -109,9 +109,10 @@
         "packages/organizations — advanceMembership (explicit lifecycle state machine; REVOKED terminal; expiry fail-closed), mandateCovers (prefix-scope semantics)",
         "packages/group-purchasing — evaluateCommitments (threshold met/shortfall/expiry; duplicates counted once; revoked/expired/foreign commitments skipped with notes)",
         "packages/simulation — runScenario shadow harness driving lab→economics→group-purchasing over fixed snapshots; reproducibility asserted by deepEqual tests",
-        "34 tests green across the five packages; per-package tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
+        "34 tests green across the five packages; per-package tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures",
+        "follow-up merge p2-w3/order-lifecycle: advanceOrder (AUTHORIZE/PLACE_ORDER/CONFIRM_CONTRACT/MARK_FULFILLED/RECONCILE guards; FULFILLMENT_FAILED re-order; DISPUTED resolution; WITHDRAW/CANCEL open-phase; refundAdmissible) + 10 tests"
       ],
-      "limitation": "PARTIAL slice of P2-W3 (TL-executed under deadline): order-lifecycle transitions after THRESHOLD_MET (AUTHORIZED/ORDERED/CONTRACTED/FULFILLED/RECONCILED/CANCELLED/REFUND_PENDING/DISPUTED) are not yet driven by an engine; member allocation detail workflows, subscription/SIM/equipment recommendation breadth and Org formation flows beyond the membership machine remain. The dispatched P2-W3 worker (p2w3, GLM-5.3-Flash) is still queued; if it lands, its output will be reviewed and merged on top."
+      "limitation": "Order lifecycle now covered through RECONCILED/DISPUTED/FULFILLMENT_FAILED with explicit guards. Remaining: member allocation detail workflows, subscription/SIM/equipment recommendation breadth, Org formation flows beyond the membership machine, and any live-provider evidence (BLOCKED-ON-OPERATOR). The dispatched P2-W3 worker (p2w3) is still queued; its output will be reviewed on top if it lands."
     },
     {
       "id": "P2-W2-TL-SLICE",
