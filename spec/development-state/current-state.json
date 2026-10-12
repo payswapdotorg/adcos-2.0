@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "architecture_version": "adcos-2.0-foundation-2026-10-12",
+  "repository": "payswapdotorg/ADCOS-2.0",
+  "branch": "main",
+  "source_of_truth": "repository",
+  "upstream": {
+    "repository": "zai-org/ZCode",
+    "commit": "29628c9acdb81b703bbd4080c207a0e7ce5e276e",
+    "version": "3.14.3",
+    "policy": "pinned; no silent tracking of upstream main"
+  },
+  "status": "ARCHITECTURE_BASELINE_COMMITTED; IMPLEMENTATION_NOT_STARTED",
+  "max_concurrent_direct_workers": 3,
+  "tech_lead_is_worker": false,
+  "worker_lanes": {
+    "worker-1": "platform substrate, migration, product surfaces, and role experience",
+    "worker-2": "cross-device coordination, resource contribution, gateway runtime, and provider integration",
+    "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
+  },
+  "frontier": ["P0-W1", "P0-W2", "P0-W3"],
+  "active_work_orders": [],
+  "completed_work_orders": [{
+    "id": "ARCH-BASELINE-001",
+    "status": "SPECIFICATION_COMMITTED",
+    "evidence": [
+      "spec/architecture/ADCOS-2.0.md",
+      "spec/architecture/INVARIANTS.md",
+      "spec/authority-model.md",
+      "spec/connectivity-resource-provider.md",
+      "spec/cross-device-coordination.md",
+      "spec/reality-lab.md",
+      "spec/group-organizations-and-purchasing.md",
+      "spec/dependency-graph.md",
+      "spec/work-orders.md",
+      "docs/LLM-ARCHITECT-HANDOFF.md"
+    ],
+    "limitation": "Only architecture/governance documents are recorded as complete. No product feature, test suite, real-device forwarding, provider execution, or deployment is thereby declared implemented."
+  }],
+  "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
+}
