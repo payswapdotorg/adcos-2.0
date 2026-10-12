@@ -1,162 +1,311 @@
-# Field to Authority Mapping
+# Field → Authority Mapping
 
-This document maps every field in the ADCOS contracts to its corresponding authority model row as defined in `spec/authority-model.md`.
+Generated from `packages/adcos-contracts/src/authority-concerns.ts` (`FieldAuthorityMapping`) — the code table is the single source of truth; regenerate this document when the table changes. Each row maps one contract field to exactly one authority concern derived from `spec/authority-model.md`.
 
-## Mapping Principles
+## Mapping principles
 
-1. **No Provider Secrets**: Contract types carry no credential fields
-2. **Opaque Payment References**: Payments are reference + provenance only
-3. **Authority Separation**: Each field maps to exactly one authority row
-4. **No Parallel Authority**: No field carries both payment and connectivity authority
+1. **Closed vocabulary** — every value is one of the `13` authority concerns below; anything else fails `validateFieldAuthorityMappings()`.
+2. **No provider secrets in canonical entities** — the `provider-adapter` concern appears only on Port config fields (`ShareNetPort.auth.credentials`); canonical entity fields never carry provider credentials.
+3. **Opaque payment references** — `PaymentReference` fields are payment-system references only, never a competing ledger.
+4. **Full coverage** — every traversable field of every canonical schema has a row; stale rows (matching no real field path) also fail validation.
+5. **Reference fields are leaves** — embedded exported schemas (e.g. `Message.envelope`) are references, not structural expansions.
 
-## Complete Field Mapping
+## Authority concerns (vocabulary)
 
-### Resource & Instance References
+| Concern                        | Meaning (spec/authority-model.md row)                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `zcode-substrate`              | ZCode runtime/platform/tool/workflow APIs (inherited substrate until explicitly migrated)         |
+| `product-domain`               | ADCOS 2.0 product domain (surfaces, preferences, control-plane records)                           |
+| `identity-trust-authority`     | Approved identity/trust authority; principals, device enrollment, authorizations                  |
+| `resource-owner`               | Resource owner (opt-in, schedule, limits, pause/revoke, contributor experience)                   |
+| `provider-connectivity-domain` | Existing ADCOS provider/connectivity domain and providers                                         |
+| `adcos-connectivity`           | payswapdotorg/ADCOS (ConnectivityIntent/Contract/ExecutionPlan, usage evidence — references only) |
+| `provider-adapter`             | Underlying provider/adapter (native routing, subscriber state, credentials — PORT CONFIG ONLY)    |
+| `sharenet`                     | payswapdotorg/ShareNet (circuits/routes/content semantics, contribution accounting)               |
+| `roamlink`                     | payswapdotorg/RoamLink bounded-domain semantics (reference only)                                  |
+| `unicom-commerce`              | payswapdotorg/UniCom group-buy discovery/commerce reference patterns                              |
+| `lab-advisory`                 | ADCOS 2.0 Reality Lab advisory domain (strategies, Organizations, opportunities evidence)         |
+| `payment-system`               | Authorized financial/payment system (actual transaction/finality — references only)               |
+| `organization-contract`        | Organization/member authority defined by the accepted product contract                            |
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| ResourceProjection.id | resource-identity | Stable ID for resource projection |
-| ResourceProjection.owner | principal-identity | Owner principal reference |
-| ResourceProjection.deviceRef | device-identity | Device instance reference |
-| ResourceProjection.type | resource-classification | Type classification of resource |
-| ResourceProjection.capability | capability-registry | Capability/version identifier |
-| ResourceProjection.version | version-control | Version control for resource |
-| ResourceProjection.modes | access-control | Access mode definitions |
-| ResourceProjection.limits | resource-policy | Resource usage limits |
-| ResourceProjection.status | resource-state | Current status of resource |
-| ResourceProjection.freshness | freshness-guarantee | Freshness guarantee timestamp |
-| ResourceProjection.evidenceRefs | evidence-chain | References to evidence |
-| ResourceProjection.revocationState | revocation-registry | Revocation state tracking |
-| InstanceIdentity.instanceId | instance-identity | Unique instance identifier |
-| InstanceIdentity.principalRef | principal-identity | Associated principal |
-| InstanceIdentity.deviceRef | device-identity | Device instance reference |
-| InstanceIdentity.status | instance-state | Current instance state |
+## Complete field mapping
 
-### Capability Observation
+### ResourceProjectionReference
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| CapabilityObservation.declared | capability-declaration | Declared capability values |
-| CapabilityObservation.observed | capability-measurement | Observed capability values |
-| CapabilityObservation.evidenceClass | evidence-classification | Classification of evidence |
-| CapabilityObservation.timestamp | event-timestamp | Observation timestamp |
-| CapabilityObservation.freshness | freshness-guarantee | Freshness guarantee |
+| Field                                    | Authority concern          |
+| ---------------------------------------- | -------------------------- |
+| `ResourceProjectionReference.id`         | `resource-owner`           |
+| `ResourceProjectionReference.owner`      | `identity-trust-authority` |
+| `ResourceProjectionReference.device`     | `identity-trust-authority` |
+| `ResourceProjectionReference.type`       | `resource-owner`           |
+| `ResourceProjectionReference.capability` | `resource-owner`           |
+| `ResourceProjectionReference.modes`      | `resource-owner`           |
+| `ResourceProjectionReference.limits`     | `resource-owner`           |
+| `ResourceProjectionReference.status`     | `resource-owner`           |
+| `ResourceProjectionReference.freshness`  | `resource-owner`           |
+| `ResourceProjectionReference.evidence`   | `resource-owner`           |
+| `ResourceProjectionReference.revoked`    | `resource-owner`           |
 
-### Cross-Device Envelope
+### InstanceIdentityReference
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| Envelope.schemaVersion | schema-version | Schema version identifier |
-| Envelope.eventId | event-identity | Unique event identifier |
-| Envelope.commandId | command-identity | Command identifier |
-| Envelope.senderInstanceId | instance-identity | Sender instance reference |
-| Envelope.receiverInstanceId | instance-identity | Receiver instance reference |
-| Envelope.scope | scope-determination | Message scope classification |
-| Envelope.issueTime | event-timestamp | Message issue timestamp |
-| Envelope.expiryTime | expiry-control | Message expiry timestamp |
-| Envelope.correlationId | correlation-tracking | Correlation identifier |
-| Envelope.causationId | causation-tracking | Causation identifier |
-| Envelope.idempotencyKey | idempotency-control | Idempotency key for dedup |
-| Envelope.payloadDigest | integrity-check | Payload digest for integrity |
-| Envelope.authorizationRef | authority-reference | Authorization reference |
-| Envelope.policyEpoch | policy-version | Policy epoch identifier |
-| Envelope.signature | authenticity-proof | Digital signature |
+| Field                                    | Authority concern          |
+| ---------------------------------------- | -------------------------- |
+| `InstanceIdentityReference.id`           | `identity-trust-authority` |
+| `InstanceIdentityReference.principal`    | `identity-trust-authority` |
+| `InstanceIdentityReference.device`       | `identity-trust-authority` |
+| `InstanceIdentityReference.type`         | `identity-trust-authority` |
+| `InstanceIdentityReference.capabilities` | `identity-trust-authority` |
 
-### Task Fields
+### CapabilityObservation
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| Task.leaseDuration | time-boxing | Task lease duration |
-| Task.deadline | deadline-enforcement | Task deadline |
-| Task.retryBudget | retry-control | Retry budget management |
-| Task.cancellation | cancellation-control | Cancellation control |
-| Task.delegationRef | delegation-reference | Delegation reference |
-| Task.attenuation | authority-attenuation | Authority attenuation |
-| Task.revocation | revocation-control | Revocation control |
+| Field                                              | Authority concern |
+| -------------------------------------------------- | ----------------- |
+| `CapabilityObservation.declared.capability`        | `resource-owner`  |
+| `CapabilityObservation.declared.version`           | `resource-owner`  |
+| `CapabilityObservation.declared.schedule.start`    | `resource-owner`  |
+| `CapabilityObservation.declared.schedule.end`      | `resource-owner`  |
+| `CapabilityObservation.declared.schedule.timezone` | `resource-owner`  |
+| `CapabilityObservation.declared.limits`            | `resource-owner`  |
+| `CapabilityObservation.declared.beneficiaries`     | `resource-owner`  |
+| `CapabilityObservation.observed.capability`        | `resource-owner`  |
+| `CapabilityObservation.observed.version`           | `resource-owner`  |
+| `CapabilityObservation.observed.status`            | `resource-owner`  |
+| `CapabilityObservation.observed.freshness`         | `resource-owner`  |
+| `CapabilityObservation.observed.evidence`          | `resource-owner`  |
+| `CapabilityObservation.evidenceClass`              | `product-domain`  |
 
-### Inbox/Outbox + Event Lifecycle
+### Envelope
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| InboxMessage.ackStatus | acknowledgment-tracking | Acknowledgment status |
-| InboxMessage.retryCount | retry-control | Retry counter |
-| InboxMessage.dedupKey | deduplication-control | Deduplication key |
-| InboxMessage.sequence | ordering-control | Message sequence number |
-| InboxMessage.deadLetter | error-handling | Dead letter handling |
-| InboxMessage.reconciliation | state-reconciliation | State reconciliation |
-| OutboxMessage.status | transmission-status | Transmission status |
-| OutboxMessage.attempts | retry-control | Attempt counter |
-| OutboxMessage.lastAttempt | retry-timing | Last attempt timestamp |
-| EventLifecycle.state | event-state | Event lifecycle state |
-| EventLifecycle.transitions | state-transition | State transitions |
-| EventLifecycle.effects | effect-tracking | Domain effects tracking |
+| Field                       | Authority concern          |
+| --------------------------- | -------------------------- |
+| `Envelope.schema`           | `product-domain`           |
+| `Envelope.eventId`          | `product-domain`           |
+| `Envelope.commandId`        | `product-domain`           |
+| `Envelope.sender`           | `identity-trust-authority` |
+| `Envelope.receiver`         | `identity-trust-authority` |
+| `Envelope.scope`            | `product-domain`           |
+| `Envelope.issuedAt`         | `product-domain`           |
+| `Envelope.expiresAt`        | `product-domain`           |
+| `Envelope.correlationId`    | `product-domain`           |
+| `Envelope.causationId`      | `product-domain`           |
+| `Envelope.idempotencyKey`   | `product-domain`           |
+| `Envelope.payloadDigest`    | `product-domain`           |
+| `Envelope.authorizationRef` | `identity-trust-authority` |
+| `Envelope.delegationRef`    | `identity-trust-authority` |
+| `Envelope.policyEpoch`      | `product-domain`           |
+| `Envelope.signature`        | `identity-trust-authority` |
 
-### Organization
+### TaskLease
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| Organization.candidate | candidate-identity | Candidate identity |
-| Organization.membership | membership-control | Membership control |
-| Organization.mandate | authority-delegation | Mandate definition |
+| Field                            | Authority concern |
+| -------------------------------- | ----------------- |
+| `TaskLease.deadline`             | `product-domain`  |
+| `TaskLease.retryBudget`          | `product-domain`  |
+| `TaskLease.cancellationDeadline` | `product-domain`  |
+| `TaskLease.cancellationReason`   | `product-domain`  |
 
-### Group Purchasing
+### Delegation
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| GroupPurchase.state | purchase-state | Purchase state machine |
-| GroupPurchase.threshold | threshold-control | Threshold requirements |
-| GroupPurchase.expiry | expiry-control | Purchase expiry |
-| GroupPurchase.withdrawal | withdrawal-control | Withdrawal control |
-| GroupPurchase.cancellation | cancellation-control | Cancellation control |
+| Field                         | Authority concern          |
+| ----------------------------- | -------------------------- |
+| `Delegation.id`               | `product-domain`           |
+| `Delegation.principal`        | `identity-trust-authority` |
+| `Delegation.delegate`         | `identity-trust-authority` |
+| `Delegation.scope`            | `product-domain`           |
+| `Delegation.issuedAt`         | `product-domain`           |
+| `Delegation.expiresAt`        | `product-domain`           |
+| `Delegation.attenuation`      | `product-domain`           |
+| `Delegation.revoked`          | `product-domain`           |
+| `Delegation.revocationReason` | `product-domain`           |
 
-### Opportunity Evidence
+### EventLifecycle
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| OpportunityEvidence.labComparison | evidence-comparison | Lab comparison evidence |
-| OpportunityEvidence.noChangeOption | baseline-comparison | No-change baseline |
-| OpportunityEvidence.cost | cost-assessment | Cost assessment |
-| OpportunityEvidence.confidence | confidence-assessment | Confidence assessment |
+| Field                             | Authority concern |
+| --------------------------------- | ----------------- |
+| `EventLifecycle.state`            | `product-domain`  |
+| `EventLifecycle.attempts`         | `product-domain`  |
+| `EventLifecycle.lastAttemptAt`    | `product-domain`  |
+| `EventLifecycle.nextRetryAt`      | `product-domain`  |
+| `EventLifecycle.maxRetries`       | `product-domain`  |
+| `EventLifecycle.ackState`         | `product-domain`  |
+| `EventLifecycle.deadLetterReason` | `product-domain`  |
 
-### Status/Error/Freshness
+### Message
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| Status.code | status-code | Status code |
-| Status.message | status-message | Status message |
-| Status.timestamp | event-timestamp | Status timestamp |
-| Status.freshness | freshness-guarantee | Freshness guarantee |
-| Status.details | status-details | Status details |
-| Error.code | error-code | Error code |
-| Error.message | error-message | Error message |
-| Error.timestamp | event-timestamp | Error timestamp |
-| Error.details | error-details | Error details |
-| Error.recovery | recovery-strategy | Recovery strategy |
-| PaymentReference.reference | payment-reference | Opaque payment reference |
-| PaymentReference.provenance | provenance-tracking | Payment provenance |
+| Field               | Authority concern |
+| ------------------- | ----------------- |
+| `Message.id`        | `product-domain`  |
+| `Message.envelope`  | `product-domain`  |
+| `Message.payload`   | `product-domain`  |
+| `Message.lifecycle` | `product-domain`  |
+| `Message.createdAt` | `product-domain`  |
+| `Message.updatedAt` | `product-domain`  |
 
-### Public Ports
+### OrganizationCandidate
 
-| Field | Authority Model Row | Description |
-|-------|-------------------|-------------|
-| Port.adapterId | adapter-identity | Adapter identifier |
-| Port.capabilities | capability-interface | Capability interface |
-| Port.version | version-control | Port version |
-| Port.endpoints | endpoint-definition | Endpoint definitions |
-| Port.security | security-profile | Security profile |
+| Field                                | Authority concern       |
+| ------------------------------------ | ----------------------- |
+| `OrganizationCandidate.id`           | `organization-contract` |
+| `OrganizationCandidate.name`         | `organization-contract` |
+| `OrganizationCandidate.description`  | `organization-contract` |
+| `OrganizationCandidate.principals`   | `organization-contract` |
+| `OrganizationCandidate.requirements` | `organization-contract` |
+| `OrganizationCandidate.capacity`     | `organization-contract` |
+| `OrganizationCandidate.expiresAt`    | `organization-contract` |
+
+### OrganizationMembership
+
+| Field                                     | Authority concern       |
+| ----------------------------------------- | ----------------------- |
+| `OrganizationMembership.id`               | `organization-contract` |
+| `OrganizationMembership.organization`     | `organization-contract` |
+| `OrganizationMembership.principal`        | `organization-contract` |
+| `OrganizationMembership.state`            | `organization-contract` |
+| `OrganizationMembership.role`             | `organization-contract` |
+| `OrganizationMembership.joinedAt`         | `organization-contract` |
+| `OrganizationMembership.expiresAt`        | `organization-contract` |
+| `OrganizationMembership.revoked`          | `organization-contract` |
+| `OrganizationMembership.revocationReason` | `organization-contract` |
+
+### OrganizationMandate
+
+| Field                              | Authority concern       |
+| ---------------------------------- | ----------------------- |
+| `OrganizationMandate.id`           | `organization-contract` |
+| `OrganizationMandate.organization` | `organization-contract` |
+| `OrganizationMandate.principal`    | `organization-contract` |
+| `OrganizationMandate.scope`        | `organization-contract` |
+| `OrganizationMandate.permissions`  | `organization-contract` |
+| `OrganizationMandate.issuedAt`     | `organization-contract` |
+| `OrganizationMandate.expiresAt`    | `organization-contract` |
+| `OrganizationMandate.revoked`      | `organization-contract` |
+
+### GroupPurchaseRequest
+
+| Field                               | Authority concern       |
+| ----------------------------------- | ----------------------- |
+| `GroupPurchaseRequest.id`           | `product-domain`        |
+| `GroupPurchaseRequest.intent`       | `product-domain`        |
+| `GroupPurchaseRequest.organization` | `organization-contract` |
+| `GroupPurchaseRequest.requirements` | `product-domain`        |
+| `GroupPurchaseRequest.participants` | `organization-contract` |
+| `GroupPurchaseRequest.threshold`    | `organization-contract` |
+| `GroupPurchaseRequest.expiresAt`    | `product-domain`        |
+
+### GroupPurchaseOffer
+
+| Field                                             | Authority concern              |
+| ------------------------------------------------- | ------------------------------ |
+| `GroupPurchaseOffer.id`                           | `product-domain`               |
+| `GroupPurchaseOffer.request`                      | `product-domain`               |
+| `GroupPurchaseOffer.supplier`                     | `unicom-commerce`              |
+| `GroupPurchaseOffer.product`                      | `unicom-commerce`              |
+| `GroupPurchaseOffer.capability`                   | `provider-connectivity-domain` |
+| `GroupPurchaseOffer.region`                       | `product-domain`               |
+| `GroupPurchaseOffer.quantity`                     | `product-domain`               |
+| `GroupPurchaseOffer.perMemberCost`                | `payment-system`               |
+| `GroupPurchaseOffer.totalCost`                    | `payment-system`               |
+| `GroupPurchaseOffer.recurringCharges.amount`      | `payment-system`               |
+| `GroupPurchaseOffer.recurringCharges.frequency`   | `payment-system`               |
+| `GroupPurchaseOffer.recurringCharges.description` | `payment-system`               |
+| `GroupPurchaseOffer.oneTimeCharges.amount`        | `payment-system`               |
+| `GroupPurchaseOffer.oneTimeCharges.description`   | `payment-system`               |
+| `GroupPurchaseOffer.term`                         | `product-domain`               |
+| `GroupPurchaseOffer.limitations`                  | `product-domain`               |
+| `GroupPurchaseOffer.expiry`                       | `product-domain`               |
+| `GroupPurchaseOffer.provenance`                   | `unicom-commerce`              |
+
+### GroupPurchaseCommitment
+
+| Field                                 | Authority concern       |
+| ------------------------------------- | ----------------------- |
+| `GroupPurchaseCommitment.id`          | `product-domain`        |
+| `GroupPurchaseCommitment.request`     | `product-domain`        |
+| `GroupPurchaseCommitment.offer`       | `product-domain`        |
+| `GroupPurchaseCommitment.participant` | `organization-contract` |
+| `GroupPurchaseCommitment.allocation`  | `organization-contract` |
+| `GroupPurchaseCommitment.acceptedAt`  | `organization-contract` |
+| `GroupPurchaseCommitment.expiresAt`   | `product-domain`        |
+| `GroupPurchaseCommitment.revoked`     | `organization-contract` |
+
+### LabComparisonEvidence
+
+| Field                                        | Authority concern |
+| -------------------------------------------- | ----------------- |
+| `LabComparisonEvidence.id`                   | `lab-advisory`    |
+| `LabComparisonEvidence.intent`               | `lab-advisory`    |
+| `LabComparisonEvidence.baseline`             | `lab-advisory`    |
+| `LabComparisonEvidence.alternatives`         | `lab-advisory`    |
+| `LabComparisonEvidence.noChange.cost`        | `lab-advisory`    |
+| `LabComparisonEvidence.noChange.reliability` | `lab-advisory`    |
+| `LabComparisonEvidence.noChange.utilization` | `lab-advisory`    |
+| `LabComparisonEvidence.selected.strategy`    | `lab-advisory`    |
+| `LabComparisonEvidence.selected.cost`        | `lab-advisory`    |
+| `LabComparisonEvidence.selected.reliability` | `lab-advisory`    |
+| `LabComparisonEvidence.selected.utilization` | `lab-advisory`    |
+| `LabComparisonEvidence.selected.confidence`  | `lab-advisory`    |
+| `LabComparisonEvidence.selected.assumptions` | `lab-advisory`    |
+| `LabComparisonEvidence.comparison`           | `lab-advisory`    |
+| `LabComparisonEvidence.evaluatedAt`          | `lab-advisory`    |
+| `LabComparisonEvidence.expiresAt`            | `lab-advisory`    |
+
+### OpportunityEvidence
+
+| Field                                | Authority concern |
+| ------------------------------------ | ----------------- |
+| `OpportunityEvidence.id`             | `lab-advisory`    |
+| `OpportunityEvidence.intent`         | `lab-advisory`    |
+| `OpportunityEvidence.evidence`       | `lab-advisory`    |
+| `OpportunityEvidence.confidence`     | `lab-advisory`    |
+| `OpportunityEvidence.cost`           | `lab-advisory`    |
+| `OpportunityEvidence.benefit`        | `lab-advisory`    |
+| `OpportunityEvidence.risk`           | `lab-advisory`    |
+| `OpportunityEvidence.recommendation` | `lab-advisory`    |
+| `OpportunityEvidence.expiresAt`      | `lab-advisory`    |
+
+### Status
+
+| Field               | Authority concern |
+| ------------------- | ----------------- |
+| `Status.state`      | `product-domain`  |
+| `Status.code`       | `product-domain`  |
+| `Status.message`    | `product-domain`  |
+| `Status.freshness`  | `product-domain`  |
+| `Status.retryAfter` | `product-domain`  |
+| `Status.reconcile`  | `product-domain`  |
+
+### PaymentReference
+
+| Field                        | Authority concern |
+| ---------------------------- | ----------------- |
+| `PaymentReference.id`        | `payment-system`  |
+| `PaymentReference.type`      | `payment-system`  |
+| `PaymentReference.authority` | `payment-system`  |
+| `PaymentReference.created`   | `payment-system`  |
+| `PaymentReference.expires`   | `payment-system`  |
+| `PaymentReference.amount`    | `payment-system`  |
+| `PaymentReference.currency`  | `payment-system`  |
+| `PaymentReference.settled`   | `payment-system`  |
+
+### ShareNetPort
+
+| Field                           | Authority concern  |
+| ------------------------------- | ------------------ |
+| `ShareNetPort.endpoint`         | `sharenet`         |
+| `ShareNetPort.capabilities`     | `sharenet`         |
+| `ShareNetPort.auth.provider`    | `sharenet`         |
+| `ShareNetPort.auth.credentials` | `provider-adapter` |
+
+### AdcosPort
+
+| Field                    | Authority concern |
+| ------------------------ | ----------------- |
+| `AdcosPort.version`      | `product-domain`  |
+| `AdcosPort.capabilities` | `product-domain`  |
+| `AdcosPort.endpoints`    | `product-domain`  |
+| `AdcosPort.auth.methods` | `product-domain`  |
+| `AdcosPort.auth.scopes`  | `product-domain`  |
 
 ## Validation
 
-All contract types have been validated against this mapping to ensure:
-- No provider secrets are present
-- No parallel payment or connectivity authority
-- All fields map to exactly one authority row
-- Opaque payment references are used throughout
-
-## Compliance
-
-This mapping satisfies the requirements from:
-- ADR-0004: Opaque Payment References
-- ADR-0001: Adapter-Facing Port
-- ADR-0002: Authority-Agnostic Principals
-- W3's five binding pins from P0-W3
+Run `validateFieldAuthorityMappings()` (exported from `@adcos/contracts`) or the package test suite; the meta-tests in `test/authority-mapping.test.ts` assert full coverage, no stale rows, closed vocabulary and the no-secrets boundary.
