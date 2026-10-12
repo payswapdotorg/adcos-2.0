@@ -31,7 +31,7 @@ The repository main baseline is ZCode v3.14.3 at commit 29628c9acdb81b703bbd4080
 The TL is orchestrator/reviewer, not a fourth worker. Read current-state and dispatch P0-W1, P0-W2 and P0-W3 concurrently because the owned paths are disjoint.
 
 - Worker 1 / P0-W1: inherited baseline, package/module inventory, toolchain and test/build evidence, migration impact. Own baseline/migration report paths only.
-- Worker 2 / P0-W2: deterministic project-spec checker and minimal verification/CI hook. Own checker/CI paths only; preserve inherited architecture policy.
+- Worker 2 / P0-W2: harden the already-committed scripts/check-project-spec.mjs starter, add negative fixtures for missing spec, malformed state JSON, unknown frontier ID, and duplicate work-order ID, and wire it into the smallest appropriate existing verification/CI hook. Own checker/CI artifacts only; preserve inherited architecture policy.
 - Worker 3 / P0-W3: capability and integration inventory, gap/evidence matrix, device/operator proof plan and test-harness plan. Own baseline/research paths only.
 
 Each returns commits, exact commands and exit codes, tests/evidence, environmental limitations, and handoff notes. TL verifies artifacts rather than accepting claims.
