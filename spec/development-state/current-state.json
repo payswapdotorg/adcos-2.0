@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P2_COMPLETE (all three lanes round-2 delivered: W1 858ca4c, W2 0e4ffed, W3 c7af117; known remainder: simulation E2E scenario test recorded inside P2-W3 as remaining, live-provider BLOCKED-ON-OPERATOR; P3-W1 dogfood now the frontier)",
+  "status": "P3_COMPLETE (P2 all lanes round-2 + sim E2E remainder + P3-W1 integration dogfood: W1 858ca4c, W2 0e4ffed, W3 c7af117, P3-W1 4c7179e \u2014 integration 20/20, sim E2E 18/18, all package regressions green, dogfood report with MOCK/REAL labeling; live-provider/payment remain BLOCKED-ON-OPERATOR per ADR-0004; frontier P4-W1 security hardening)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -19,10 +19,10 @@
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
   "frontier": [
-    "P3-W1"
+    "P4-W1"
   ],
   "active_work_orders": [
-    "P3-W1"
+    "P4-W1"
   ],
   "completed_work_orders": [
     {
@@ -151,6 +151,19 @@
         "61/61 tests (13 suites; 9 merged projections tests unchanged); tsc clean (src+verification); spec PASSED; architecture 0; regressions simulation 11/11 + coordination 77/77; scoped oxlint/oxfmt clean",
         "delivery: worker p2w1-r2 (chat 31aed843) harvested via extract_full after infra recovery (janitor tab-kill, replayd restart); TL re-gated all results independently",
         "contract proposals P-1..P-3 recorded for TL backlog (module-dependency composition level; CapabilityObservation resource keying; withdrawal-window reconciliation with P2-W3 reallocateOnWithdrawal)"
+      ]
+    },
+    {
+      "id": "P3-W1",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge to main 4c7179e (branch tl/p3w1-harvest; worker sandbox commit b2436e3 on p3-w1/integration-dogfood)",
+        "test/integration \u2014 full-chain (7 legs, public contract entries only), two-process-restart (3 real OS processes, one durable log, real TCP loopback, wire-level REPLAY rejection), negative-boundaries (replay/expired/revoked/fail-closed AUTHORIZE); 20/20 tests, tsc clean",
+        "packages/simulation/test/e2e-scenario.test.ts \u2014 P2-W3 remainder closed: fixed-snapshot reproducible E2E, two runs deepEqual identical (sim 18/18: baseline 11 + 7 new)",
+        "docs/reports/integration/dogfood-report.md \u2014 durable evidence, leg-by-leg pointers, MOCK/REAL labeling per boundary; no live provider/payment success claimed (ADR-0004 BLOCKED-ON-OPERATOR)",
+        "regressions all green: surfaces 61/61, coordination 77/77, group-purchasing 42/42, economics 14/14, lab 16/16, organizations 30/30, contracts 76/76; spec PASSED; architecture 0 violations; scoped oxlint/oxfmt clean",
+        "delivery: worker p3w1 (chat 83bf4e5f) harvested via extract_full; TL re-gated tsc/suite/spec/architecture independently",
+        "TL backlog from worker proposals: root test:integration script proposal; @adcos/* root-resolution proposal (optional); lab contract doc clarification (rankCandidates baseline under rejected is legitimate); future coordination-API optional delegation-chain ValidationContext (needs ADR if contract-shaped)"
       ]
     }
   ],
