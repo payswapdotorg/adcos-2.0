@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P1_COMPLETE; P2_ALL_LANES_STARTED (TL domain slices + order lifecycle + full-chain dogfood merged; dispatched workers queued for on-top review)",
+  "status": "P2_COMPLETE (all three lanes round-2 delivered: W1 858ca4c, W2 0e4ffed, W3 c7af117; known remainder: simulation E2E scenario test recorded inside P2-W3 as remaining, live-provider BLOCKED-ON-OPERATOR; P3-W1 dogfood now the frontier)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -19,14 +19,10 @@
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
   "frontier": [
-    "P2-W1",
-    "P2-W2",
-    "P2-W3"
+    "P3-W1"
   ],
   "active_work_orders": [
-    "P2-W1",
-    "P2-W2",
-    "P2-W3"
+    "P3-W1"
   ],
   "completed_work_orders": [
     {
@@ -56,7 +52,7 @@
         "docs/baseline/evidence/02-toolchain.txt",
         "docs/baseline/evidence/03-baseline-checks.txt"
       ],
-      "limitation": "Renderer vite builds (@zcode/web, desktop bundle) deterministically OOM-kill in the 4.1 GiB worker sandbox — subset-build justification recorded; renderer bundling unverified in-sandbox, needs >=8 GB host or CI. fmt:check red on 31 inherited + 7 ADCOS-added files (debt recorded, not gate-blocking: verify:pre-push excludes fmt)."
+      "limitation": "Renderer vite builds (@zcode/web, desktop bundle) deterministically OOM-kill in the 4.1 GiB worker sandbox \u2014 subset-build justification recorded; renderer bundling unverified in-sandbox, needs >=8 GB host or CI. fmt:check red on 31 inherited + 7 ADCOS-added files (debt recorded, not gate-blocking: verify:pre-push excludes fmt)."
     },
     {
       "id": "P0-W2",
@@ -88,11 +84,11 @@
       "status": "ACCEPTED_MERGED",
       "evidence": [
         "merge 0de243d (branch p1-w1/shared-contracts, commits 2ee5722+d1b2cca+8a9679f)",
-        "packages/adcos-contracts (@adcos/contracts) — ESM package, zod 4.6.5 exact, exports map, public surface contract.ts + index.ts",
-        "src/schemas/{resource,coordination,economy,lab,ports}.ts — all contract families from the work order; module.ts manifest per managed-module artifact rule",
-        "src/versioning.ts — object-form SchemaVersion canonical, VERSION_COMPATIBILITY_MATRIX, single VersionManager negotiation API, VersionedSchema",
-        "src/authority-concerns.ts + src/authority-mapping.ts — 176-row field-to-authority table over a closed 13-concern vocabulary from spec/authority-model.md + real zod-shape validator (missing/stale/invalid detection)",
-        "docs/contracts/field-authority-mapping.md — regenerated from the table (single source of truth)",
+        "packages/adcos-contracts (@adcos/contracts) \u2014 ESM package, zod 4.6.5 exact, exports map, public surface contract.ts + index.ts",
+        "src/schemas/{resource,coordination,economy,lab,ports}.ts \u2014 all contract families from the work order; module.ts manifest per managed-module artifact rule",
+        "src/versioning.ts \u2014 object-form SchemaVersion canonical, VERSION_COMPATIBILITY_MATRIX, single VersionManager negotiation API, VersionedSchema",
+        "src/authority-concerns.ts + src/authority-mapping.ts \u2014 176-row field-to-authority table over a closed 13-concern vocabulary from spec/authority-model.md + real zod-shape validator (missing/stale/invalid detection)",
+        "docs/contracts/field-authority-mapping.md \u2014 regenerated from the table (single source of truth)",
         "test suite: 76/76 green (schema validation, negative conformance incl. isEnvelopeExpired/createReplayGuard/validateScope, golden-path complete validation with coverage assertion, versioning matrix semantics, authority meta-tests)",
         "gates on merged main: architecture:check 0 violations; lint 0 errors; spec checker PASSED; negative-fixture runner 9/9; contracts tsc clean; fmt:check 0 new failures vs recorded baseline",
         "P2 module registration (economics, organizations, group-purchasing, lab, simulation, surfaces, coordination) applied with package skeletons (module.ts + contract.ts artifacts)"
@@ -104,30 +100,30 @@
       "status": "ACCEPTED_MERGED_PARTIAL",
       "evidence": [
         "merge of branch p2-w3/lab-economy-tl (commit 6b4a32a)",
-        "packages/economics — evaluateOpportunity (explicit EvaluationPolicy: minConfidence/minSaving/maxAssumptions/reliability tolerance; INSUFFICIENT_EVIDENCE vs REJECT semantics), summarizeOfferCosts (charge rollup + stated-total verification)",
-        "packages/lab — runComparison (deterministic baseline/no-change comparison producing canonical LabComparisonEvidence; explicit missing-metric confidence penalty; injected clock), asOpportunityEvidence (advisory only)",
-        "packages/organizations — advanceMembership (explicit lifecycle state machine; REVOKED terminal; expiry fail-closed), mandateCovers (prefix-scope semantics)",
-        "packages/group-purchasing — evaluateCommitments (threshold met/shortfall/expiry; duplicates counted once; revoked/expired/foreign commitments skipped with notes)",
-        "packages/simulation — runScenario shadow harness driving lab→economics→group-purchasing over fixed snapshots; reproducibility asserted by deepEqual tests",
+        "packages/economics \u2014 evaluateOpportunity (explicit EvaluationPolicy: minConfidence/minSaving/maxAssumptions/reliability tolerance; INSUFFICIENT_EVIDENCE vs REJECT semantics), summarizeOfferCosts (charge rollup + stated-total verification)",
+        "packages/lab \u2014 runComparison (deterministic baseline/no-change comparison producing canonical LabComparisonEvidence; explicit missing-metric confidence penalty; injected clock), asOpportunityEvidence (advisory only)",
+        "packages/organizations \u2014 advanceMembership (explicit lifecycle state machine; REVOKED terminal; expiry fail-closed), mandateCovers (prefix-scope semantics)",
+        "packages/group-purchasing \u2014 evaluateCommitments (threshold met/shortfall/expiry; duplicates counted once; revoked/expired/foreign commitments skipped with notes)",
+        "packages/simulation \u2014 runScenario shadow harness driving lab\u2192economics\u2192group-purchasing over fixed snapshots; reproducibility asserted by deepEqual tests",
         "34 tests green across the five packages; per-package tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures",
         "follow-up merge p2-w3/order-lifecycle: advanceOrder (AUTHORIZE/PLACE_ORDER/CONFIRM_CONTRACT/MARK_FULFILLED/RECONCILE guards; FULFILLMENT_FAILED re-order; DISPUTED resolution; WITHDRAW/CANCEL open-phase; refundAdmissible) + 10 tests",
-        "follow-up merge p2-w3/full-chain-dogfood: two-instance end-to-end composition test (consent → discovery+delegation → envelope validation w/ replay rejection → inbox COMPLETED → org formation → mandate scope → Lab PURSUE → threshold → order lifecycle to RECONCILED → isolated customer view) through public contract surfaces only — P3-W1 shape executed inside the P2-W3 harness package",
-        "round-2 merge (worker p2w3-recover, TL-gated): member allocation workflows (proportional allocation with explicit rounding policy, per-member allocation records with offer/commitment provenance, withdrawal reallocation, shortfall/expiry fail-closed — 24 new tests), recommendation breadth (multi-candidate ranking with explicit criteria+confidence, price-vs-capacity trade-off as structured evidence, eligibility preconditions REJECT-with-reasons — economics tradeoff + lab recommendation), org formation flows beyond the membership machine (founding from Lab PURSUE verdict with founder consent + initial mandate, mandate amendment consent rules, dissolution with explicit open-commitment disposition — 22 new tests), simulation harness rewrite accommodating the new flows. 113/113 tests across the five packages; tsc 5/5; architecture 0; spec PASSED; lint 0; fmt clean"
+        "follow-up merge p2-w3/full-chain-dogfood: two-instance end-to-end composition test (consent \u2192 discovery+delegation \u2192 envelope validation w/ replay rejection \u2192 inbox COMPLETED \u2192 org formation \u2192 mandate scope \u2192 Lab PURSUE \u2192 threshold \u2192 order lifecycle to RECONCILED \u2192 isolated customer view) through public contract surfaces only \u2014 P3-W1 shape executed inside the P2-W3 harness package",
+        "round-2 merge (worker p2w3-recover, TL-gated): member allocation workflows (proportional allocation with explicit rounding policy, per-member allocation records with offer/commitment provenance, withdrawal reallocation, shortfall/expiry fail-closed \u2014 24 new tests), recommendation breadth (multi-candidate ranking with explicit criteria+confidence, price-vs-capacity trade-off as structured evidence, eligibility preconditions REJECT-with-reasons \u2014 economics tradeoff + lab recommendation), org formation flows beyond the membership machine (founding from Lab PURSUE verdict with founder consent + initial mandate, mandate amendment consent rules, dissolution with explicit open-commitment disposition \u2014 22 new tests), simulation harness rewrite accommodating the new flows. 113/113 tests across the five packages; tsc 5/5; architecture 0; spec PASSED; lint 0; fmt clean"
       ],
-      "limitation": "Updated (round 2): member allocation, recommendation breadth, org formation flows landed. Remaining: the simulation E2E scenario test wiring the new flows into ONE end-to-end run (the worker turn died mid Task 4; the harness rewrite itself landed and stays covered by existing tests), member allocation UI-level surfaces, and any live-provider evidence (BLOCKED-ON-OPERATOR). Delivered via transcript harvest after a Write-tool failure — reconstructed and fully re-gated by TL."
+      "limitation": "Updated (round 2): member allocation, recommendation breadth, org formation flows landed. Remaining: the simulation E2E scenario test wiring the new flows into ONE end-to-end run (the worker turn died mid Task 4; the harness rewrite itself landed and stays covered by existing tests), member allocation UI-level surfaces, and any live-provider evidence (BLOCKED-ON-OPERATOR). Delivered via transcript harvest after a Write-tool failure \u2014 reconstructed and fully re-gated by TL."
     },
     {
       "id": "P2-W2-TL-SLICE",
       "status": "ACCEPTED_MERGED_PARTIAL",
       "evidence": [
         "merge of branch p2-w2/coordination-tl",
-        "packages/coordination — validateEnvelope (pre-dispatch gates: MALFORMED/EXPIRED/OUT_OF_SCOPE/STALE_POLICY_EPOCH/UNKNOWN_SENDER/OVERSIZED/REPLAY; failures aggregate in order; open-discovery mode explicit), createEnvelopeReplayGuard",
+        "packages/coordination \u2014 validateEnvelope (pre-dispatch gates: MALFORMED/EXPIRED/OUT_OF_SCOPE/STALE_POLICY_EPOCH/UNKNOWN_SENDER/OVERSIZED/REPLAY; failures aggregate in order; open-discovery mode explicit), createEnvelopeReplayGuard",
         "beginProcessing/recordOutcome/isDeadLettered (EventLifecycle state machine; retry budget; dead-letter on exhaustion or Status.reconcile requirement)",
         "checkDelegationChain (revocation/expiry/attenuation containment; prefix-scope coverage)",
         "discoverResources (capability/mode/freshness matching; observed status beats declared; matched-on evidence trail)",
         "34 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures",
-        "follow-up merge p2-w2/durable-store: JsonlInboxStore (adapters layer — node I/O legal there; write-before-ack append; torn-tail detection reported not trusted; restart-safe) + 4 persistence tests",
-        "round-2 merge (worker p2w2-r2, TL-gated): TCP transport in the adapters layer (length-prefixed wire protocol, acks, connection-loss handling), CoordinationEndpoint (receive → validateEnvelope gates → durable inbox lifecycle), OutboxSender (retry budget, dead-letter, write-before-ack via JsonlInboxStore), two-separate-process verification (own stores, real TCP loopback, partition/reconnect + duplicate/expiry negatives; 7/7), ShareNet adapter seam per ADR-0001 (semantic-operations interface + fail-closed reference stub, 11 fail-closed tests). Coordination suite 77/77; tsc clean under TS 5.9.3 and 6.0.2; architecture:check 0; spec PASSED; lint 0; fmt clean"
+        "follow-up merge p2-w2/durable-store: JsonlInboxStore (adapters layer \u2014 node I/O legal there; write-before-ack append; torn-tail detection reported not trusted; restart-safe) + 4 persistence tests",
+        "round-2 merge (worker p2w2-r2, TL-gated): TCP transport in the adapters layer (length-prefixed wire protocol, acks, connection-loss handling), CoordinationEndpoint (receive \u2192 validateEnvelope gates \u2192 durable inbox lifecycle), OutboxSender (retry budget, dead-letter, write-before-ack via JsonlInboxStore), two-separate-process verification (own stores, real TCP loopback, partition/reconnect + duplicate/expiry negatives; 7/7), ShareNet adapter seam per ADR-0001 (semantic-operations interface + fail-closed reference stub, 11 fail-closed tests). Coordination suite 77/77; tsc clean under TS 5.9.3 and 6.0.2; architecture:check 0; spec PASSED; lint 0; fmt clean"
       ],
       "limitation": "Updated (round 2): wire transports + two-separate-process verification + ShareNet seam landed. Remaining: physical-device forwarding evidence (P4-W2, BLOCKED-ON-OPERATOR), a real ShareNet instance to exercise the seam (none exists in-sandbox; stub fails closed by design), envelope signatures still placeholder crypto (inherited contracts limitation)."
     },
@@ -136,11 +132,26 @@
       "status": "ACCEPTED_MERGED_PARTIAL",
       "evidence": [
         "merge of branch p2-w1/surfaces-tl",
-        "packages/surfaces — buildCustomerView (tenant isolation by ownership/membership/participation; threshold progress + own commitment; EXPIRED surfaced; opportunities scoped to visible intents), resourceShareState (REVOKED > PAUSED > SHARED doctrine, raw canonical status preserved), advanceConsent (opt-in/opt-out/pause/resume; explicit OPT_IN required, no silent resume)",
+        "packages/surfaces \u2014 buildCustomerView (tenant isolation by ownership/membership/participation; threshold progress + own commitment; EXPIRED surfaced; opportunities scoped to visible intents), resourceShareState (REVOKED > PAUSED > SHARED doctrine, raw canonical status preserved), advanceConsent (opt-in/opt-out/pause/resume; explicit OPT_IN required, no silent resume)",
         "surfaces module requires extended: contracts, shared, ui, web, economics, lab, organizations, group-purchasing (TL-serialized; manifest synced)",
         "9 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures; spec checker PASSED"
       ],
-      "limitation": "PARTIAL domain slice of P2-W1 (TL-executed under deadline): no browser UI yet — real user journeys through the substrate web/desktop stacks, responsive/accessibility checks, role isolation verified through the live service and negative/error UI flows remain for the next session. The dispatched P2-W1 worker (p2w1, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
+      "limitation": "PARTIAL domain slice of P2-W1 (TL-executed under deadline): no browser UI yet \u2014 real user journeys through the substrate web/desktop stacks, responsive/accessibility checks, role isolation verified through the live service and negative/error UI flows remain for the next session. The dispatched P2-W1 worker (p2w1, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
+    },
+    {
+      "id": "P2-W1-ROUND-2",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge to main 858ca4c (branch tl/p2w1-r2-harvest; worker sandbox commit 5aa53ce on p2-w1/surfaces-journeys-r2)",
+        "packages/surfaces \u2014 SurfacesService public API composing landed packages (enroll/consent/observation, Lab evaluation, founding from evidence, invite/accept membership, group purchase + order lifecycle, computed authorization, opaque payment evidence per ADR-0004)",
+        "packages/surfaces/src/adapters \u2014 JsonlSurfaceStateStore (write-before-ack, last-intact-snapshot fold, torn-tail reporting; node I/O only in adapters)",
+        "role experience \u2014 operator + developer projections, role-gated, serialized-leak assertions, command-boundary tenant isolation",
+        "negative flows \u2014 expired consent resumption refused, revoked unusable, UNKNOWN/STALE/DEGRADED distinct, fail-closed (18 tests)",
+        "two-process verification \u2014 real OS-process restart over one durable log (3 tests)",
+        "61/61 tests (13 suites; 9 merged projections tests unchanged); tsc clean (src+verification); spec PASSED; architecture 0; regressions simulation 11/11 + coordination 77/77; scoped oxlint/oxfmt clean",
+        "delivery: worker p2w1-r2 (chat 31aed843) harvested via extract_full after infra recovery (janitor tab-kill, replayd restart); TL re-gated all results independently",
+        "contract proposals P-1..P-3 recorded for TL backlog (module-dependency composition level; CapabilityObservation resource keying; withdrawal-window reconciliation with P2-W3 reallocateOnWithdrawal)"
+      ]
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
