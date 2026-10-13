@@ -14,3 +14,5 @@ export type {
   OpportunityEvaluation,
   OfferCostSummary,
 } from "./domain/evaluation.js";
+export { comparePriceCapacity } from "./domain/tradeoff.js";
+export type { TradeOffInput, PriceCapacityTradeOff } from "./domain/tradeoff.js";
