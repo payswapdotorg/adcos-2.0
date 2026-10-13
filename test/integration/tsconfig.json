@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "strict": true,
+    "paths": {
+      "@adcos/contracts": ["../adcos-contracts/src/index.ts"],
+      "@adcos/coordination": ["../coordination/src/contract.ts"],
+      "@adcos/economics": ["../economics/src/contract.ts"],
+      "@adcos/lab": ["../lab/src/contract.ts"],
+      "@adcos/organizations": ["../organizations/src/contract.ts"],
+      "@adcos/group-purchasing": ["../group-purchasing/src/contract.ts"],
+      "@adcos/simulation": ["../simulation/src/contract.ts"],
+      "@adcos/surfaces": ["../surfaces/src/contract.ts"]
+    },
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
