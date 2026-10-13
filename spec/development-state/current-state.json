@@ -124,9 +124,10 @@
         "beginProcessing/recordOutcome/isDeadLettered (EventLifecycle state machine; retry budget; dead-letter on exhaustion or Status.reconcile requirement)",
         "checkDelegationChain (revocation/expiry/attenuation containment; prefix-scope coverage)",
         "discoverResources (capability/mode/freshness matching; observed status beats declared; matched-on evidence trail)",
-        "34 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures"
+        "34 tests green; tsc clean; architecture:check 0 violations; lint 0 errors; fmt 0 new failures",
+        "follow-up merge p2-w2/durable-store: JsonlInboxStore (adapters layer — node I/O legal there; write-before-ack append; torn-tail detection reported not trusted; restart-safe) + 4 persistence tests"
       ],
-      "limitation": "PARTIAL slice of P2-W2 (TL-executed under deadline): no transport adapters yet (durable storage, wire transport, ShareNet seam per ADR-0001), no two-separate-process physical verification, no physical-device forwarding evidence (P4-W2 territory). The dispatched P2-W2 worker (p2w2, GLM-5.3) is still queued; its output will be reviewed and merged on top if it lands."
+      "limitation": "Updated: durable storage landed (JSONL adapter). Remaining: wire transports (real network/IPC), two-separate-process physical verification, ShareNet adapter seam per ADR-0001, physical-device forwarding evidence (P4-W2). The dispatched P2-W2 worker (p2w2) is still queued; its output will be reviewed on top if it lands."
     },
     {
       "id": "P2-W1-TL-SLICE",
