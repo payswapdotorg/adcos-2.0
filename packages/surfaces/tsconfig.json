@@ -8,9 +8,11 @@
       "@adcos/economics": ["../economics/src/contract.ts"],
       "@adcos/lab": ["../lab/src/contract.ts"],
       "@adcos/organizations": ["../organizations/src/contract.ts"],
-      "@adcos/group-purchasing": ["../group-purchasing/src/contract.ts"]
-    }
+      "@adcos/group-purchasing": ["../group-purchasing/src/contract.ts"],
+      "@adcos/coordination": ["../coordination/src/contract.ts"]
+    },
+    "types": ["node"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "verification/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }

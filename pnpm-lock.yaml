@@ -1182,6 +1182,9 @@ importers:
         specifier: workspace:*
         version: link:../organizations
     devDependencies:
+      '@adcos/coordination':
+        specifier: workspace:*
+        version: link:../coordination
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.43
