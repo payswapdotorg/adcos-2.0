@@ -5,6 +5,7 @@ import type {
   GroupPurchaseOffer,
   GroupPurchaseCommitment,
   OpportunityEvidence,
+  GroupPurchaseState,
 } from "@adcos/contracts";
 
 // ============================================================================
@@ -14,6 +15,17 @@ import type {
 // DEGRADED surface as themselves, never as silent success (INVARIANTS #5).
 // ============================================================================
 
+/**
+ * The owner's sharing-consent journey for one resource (advanceConsent
+ * machine state). Optional in a snapshot: when present, owner intent gates
+ * the surfaced share state (an opted-out resource never reads as SHARED).
+ */
+export interface ResourceConsent {
+  resourceId: string;
+  state: "NOT_SHARED" | "SHARED" | "PAUSED";
+  updatedAt: number;
+}
+
 export interface DomainSnapshot {
   resources: readonly ResourceProjectionReference[];
   memberships: readonly OrganizationMembership[];
@@ -21,6 +33,10 @@ export interface DomainSnapshot {
   offers: readonly GroupPurchaseOffer[];
   commitments: readonly GroupPurchaseCommitment[];
   opportunities: readonly OpportunityEvidence[];
+  /** Owner consent journeys (optional; owner intent gates sharing). */
+  consents?: readonly ResourceConsent[];
+  /** Order-lifecycle state per request (optional; surfaced as-is). */
+  orderStates?: Readonly<Record<string, GroupPurchaseState>>;
 }
 
 export type ResourceShareState = "NOT_SHARED" | "SHARED" | "PAUSED" | "REVOKED";
@@ -46,6 +62,8 @@ export interface GroupPurchaseCard {
   threshold: number;
   /** This principal's own commitment id, when present. */
   myCommitmentId: string | undefined;
+  /** Order-lifecycle state (order machine vocabulary), when tracked. */
+  orderState: GroupPurchaseState | undefined;
 }
 
 export interface CustomerView {
@@ -62,12 +80,22 @@ export interface CustomerView {
 
 /**
  * Derive a resource's share state: explicit revocation wins, then the
+ * owner's consent journey (opted-out/paused reads as itself), then the
  * status doctrine (TERMINATED/REJECTED/FAILED read as PAUSED-with-cause for
  * the customer's opt-in mental model — the raw status is still surfaced).
  */
-export function resourceShareState(resource: ResourceProjectionReference): ResourceShareState {
+export function resourceShareState(
+  resource: ResourceProjectionReference,
+  consent?: ResourceConsent,
+): ResourceShareState {
   if (resource.revoked) {
     return "REVOKED";
+  }
+  if (consent?.state === "NOT_SHARED") {
+    return "NOT_SHARED";
+  }
+  if (consent?.state === "PAUSED") {
+    return "PAUSED";
   }
   if (
     resource.status === "TERMINATED" ||
@@ -97,8 +125,11 @@ export function buildCustomerView(
   const myRequests = snapshot.requests.filter(
     (r) => r.organization !== undefined && myOrganizations.has(r.organization),
   );
-  const myCommitments = snapshot.commitments.filter((c) => c.participant === principal);
   const myIntents = new Set(myRequests.map((r) => r.intent));
+  const consentByResource = new Map(
+    (snapshot.consents ?? []).map((c) => [c.resourceId, c] as const),
+  );
+  const orderStates = snapshot.orderStates ?? {};
 
   return {
     principal,
@@ -106,7 +137,7 @@ export function buildCustomerView(
       resourceId: r.id,
       type: r.type,
       capability: r.capability,
-      share: resourceShareState(r),
+      share: resourceShareState(r, consentByResource.get(r.id)),
       status: r.status,
       freshness: r.freshness,
     })),
@@ -128,6 +159,7 @@ export function buildCustomerView(
         committedParticipants: new Set(committed.map((c) => c.participant)).size,
         threshold: r.threshold,
         myCommitmentId: mine?.id,
+        orderState: orderStates[r.id],
       };
     }),
     opportunities: snapshot.opportunities
