@@ -15,3 +15,5 @@ export { checkDelegationChain } from "./domain/delegation.js";
 export type { DelegationCheck } from "./domain/delegation.js";
 export { discoverResources } from "./domain/discovery.js";
 export type { DiscoveryQuery, DiscoveredResource } from "./domain/discovery.js";
+export { JsonlInboxStore } from "./adapters/jsonl-inbox-store.js";
+export type { InboxStoreStats } from "./adapters/jsonl-inbox-store.js";
