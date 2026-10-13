@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "node --import tsx --test test/**/*.test.ts"
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "test:two-process": "node --import tsx --test test/two-process.test.ts"
   },
   "dependencies": {
     "@adcos/contracts": "workspace:*"
