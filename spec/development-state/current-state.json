@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P3_COMPLETE (P2 all lanes round-2 + sim E2E remainder + P3-W1 integration dogfood: W1 858ca4c, W2 0e4ffed, W3 c7af117, P3-W1 4c7179e \u2014 integration 20/20, sim E2E 18/18, all package regressions green, dogfood report with MOCK/REAL labeling; live-provider/payment remain BLOCKED-ON-OPERATOR per ADR-0004; frontier P4-W1 security hardening)",
+  "status": "P4-W1 ROUND-1 PARTIAL (security isolation battery merged 40d3195: 15/15 tests; P0-P3 complete: W1 858ca4c, W2 0e4ffed, W3 c7af117, P3-W1 4c7179e + sim E2E; P4-W1 remaining: replay/abuse/budget/secrets batteries, threat-model doc, backup/restore + load plan; live-provider remains BLOCKED-ON-OPERATOR)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -164,6 +164,17 @@
         "regressions all green: surfaces 61/61, coordination 77/77, group-purchasing 42/42, economics 14/14, lab 16/16, organizations 30/30, contracts 76/76; spec PASSED; architecture 0 violations; scoped oxlint/oxfmt clean",
         "delivery: worker p3w1 (chat 83bf4e5f) harvested via extract_full; TL re-gated tsc/suite/spec/architecture independently",
         "TL backlog from worker proposals: root test:integration script proposal; @adcos/* root-resolution proposal (optional); lab contract doc clarification (rankCandidates baseline under rejected is legitimate); future coordination-API optional delegation-chain ValidationContext (needs ADR if contract-shaped)"
+      ]
+    },
+    {
+      "id": "P4-W1-ROUND-1",
+      "status": "ACCEPTED_MERGED_PARTIAL",
+      "evidence": [
+        "merge to main 40d3195 (branch tl/p4w1-r1-harvest; worker sandbox commit 2df2af4 on p4-w1/security-battery-r1)",
+        "test/security/isolation.test.ts \u2014 15 adversarial isolation proofs through public contract entries: cross-tenant refusal, impostor role views, non-member purchase refusal, mandate-expiry-between-commit-and-authorize fails closed, REVOKED/EXPIRED/absent delegations grant nothing (INVARIANTS #12/#20)",
+        "gates: tsc clean; 15/15 (5 suites); spec PASSED; architecture 0; TL re-gated independently",
+        "delivery: worker p4w1 (chat aa26b523) \u2014 NOTE: initial create's prompt did not reach the agent context (gateway dropped it); worker honestly refused to fabricate scope, executed compressed re-issued order; harvested via extract_full",
+        "remaining (round 2): replay/partial-failure injection battery, abuse/Sybil/collusion fixtures, budget-enforcement negatives, threat-model doc (docs/reports/security/), backup/restore + load plan"
       ]
     }
   ],
