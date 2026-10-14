@@ -179,16 +179,14 @@ describe("cross-tenant resource commands are refused at the command boundary", (
       true,
     );
     assert.equal(
-      svc
-        .openGroupPurchase(ALICE, {
-          id: "gpr-iso-w",
-          intent: "intent-iso-w",
-          organization: "org-iso-w",
-          requirements: { product: "data-bundle" },
-          threshold: 2,
-          expiresAt: t + 7 * 86_400_000,
-        })
-        .applied,
+      svc.openGroupPurchase(ALICE, {
+        id: "gpr-iso-w",
+        intent: "intent-iso-w",
+        organization: "org-iso-w",
+        requirements: { product: "data-bundle" },
+        threshold: 2,
+        expiresAt: t + 7 * 86_400_000,
+      }).applied,
       true,
     );
     assert.equal(svc.receiveOffer(ALICE, offer("gpo-iso-w", "gpr-iso-w", 2, t)).applied, true);
@@ -201,7 +199,10 @@ describe("cross-tenant resource commands are refused at the command boundary", (
     // An uninvolved principal cannot withdraw alice's commitment.
     const foreign = svc.withdrawCommitment(BOB, commit.commitment?.id ?? "");
     assert.equal(foreign.applied, false);
-    assert.match(foreign.reason ?? "", /belongs to 'prin-alice-iso' — only the participant may withdraw it/);
+    assert.match(
+      foreign.reason ?? "",
+      /belongs to 'prin-alice-iso' — only the participant may withdraw it/,
+    );
   });
 
   it("views only ever expose the caller's own rows — and the isolation survives persistence and restart", () => {
@@ -223,10 +224,7 @@ describe("cross-tenant resource commands are refused at the command boundary", (
     // The adapters-layer durable store folds back exactly the two owned rows.
     const store = new JsonlSurfaceStateStore(path("view-isolation"));
     const restored = store.restore();
-    assert.deepEqual(
-      restored.resources.map((r) => r.owner).sort(),
-      [ALICE, BOB],
-    );
+    assert.deepEqual(restored.resources.map((r) => r.owner).sort(), [ALICE, BOB]);
     assert.ok(store.stats().snapshots >= 1, "at least one snapshot must have been folded");
 
     // A NEW service instance over the same durable log keeps the isolation:
@@ -322,16 +320,14 @@ describe("non-member group-purchase actions are refused", () => {
       true,
     );
     assert.equal(
-      svc
-        .openGroupPurchase(ALICE, {
-          id: "gpr-iso-c",
-          intent: "intent-iso-c",
-          organization: "org-iso-c",
-          requirements: {},
-          threshold: 2,
-          expiresAt: t + 86_400_000,
-        })
-        .applied,
+      svc.openGroupPurchase(ALICE, {
+        id: "gpr-iso-c",
+        intent: "intent-iso-c",
+        organization: "org-iso-c",
+        requirements: {},
+        threshold: 2,
+        expiresAt: t + 86_400_000,
+      }).applied,
       true,
     );
     assert.equal(svc.receiveOffer(ALICE, offer("gpo-iso-c", "gpr-iso-c", 2, t)).applied, true);
@@ -355,16 +351,14 @@ describe("non-member group-purchase actions are refused", () => {
       true,
     );
     assert.equal(
-      svc
-        .openGroupPurchase(ALICE, {
-          id: "gpr-iso-o",
-          intent: "intent-iso-o",
-          organization: "org-iso-o",
-          requirements: {},
-          threshold: 1,
-          expiresAt: t + 86_400_000,
-        })
-        .applied,
+      svc.openGroupPurchase(ALICE, {
+        id: "gpr-iso-o",
+        intent: "intent-iso-o",
+        organization: "org-iso-o",
+        requirements: {},
+        threshold: 1,
+        expiresAt: t + 86_400_000,
+      }).applied,
       true,
     );
 
@@ -417,16 +411,14 @@ describe("non-member group-purchase actions are refused", () => {
       true,
     );
     assert.equal(
-      svc
-        .openGroupPurchase(ALICE, {
-          id: "gpr-iso-nm",
-          intent: "intent-iso-nm",
-          organization: "org-iso-nm",
-          requirements: {},
-          threshold: 2,
-          expiresAt: t + 86_400_000,
-        })
-        .applied,
+      svc.openGroupPurchase(ALICE, {
+        id: "gpr-iso-nm",
+        intent: "intent-iso-nm",
+        organization: "org-iso-nm",
+        requirements: {},
+        threshold: 2,
+        expiresAt: t + 86_400_000,
+      }).applied,
       true,
     );
     assert.equal(svc.receiveOffer(ALICE, offer("gpo-iso-nm", "gpr-iso-nm", 2, t)).applied, true);
@@ -458,19 +450,20 @@ describe("unmandated order authorization fails closed", () => {
       true,
     );
     assert.equal(
-      svc
-        .openGroupPurchase(ALICE, {
-          id: "gpr-iso-auth",
-          intent: "intent-iso-auth",
-          organization: "org-iso-auth",
-          requirements: {},
-          threshold: 2,
-          expiresAt: t + 7 * 86_400_000,
-        })
-        .applied,
+      svc.openGroupPurchase(ALICE, {
+        id: "gpr-iso-auth",
+        intent: "intent-iso-auth",
+        organization: "org-iso-auth",
+        requirements: {},
+        threshold: 2,
+        expiresAt: t + 7 * 86_400_000,
+      }).applied,
       true,
     );
-    assert.equal(svc.receiveOffer(ALICE, offer("gpo-iso-auth", "gpr-iso-auth", 2, t)).applied, true);
+    assert.equal(
+      svc.receiveOffer(ALICE, offer("gpo-iso-auth", "gpr-iso-auth", 2, t)).applied,
+      true,
+    );
     // Both commit while the member's mandate is still active.
     assert.equal(
       svc.commitToPurchase(ALICE, { requestId: "gpr-iso-auth", allocation: { lines: 1 } }).applied,
@@ -498,11 +491,7 @@ describe("unmandated order authorization fails closed", () => {
 
 describe("expired / revoked delegations are unusable at the coordination boundary", () => {
   it("a REVOKED delegation grants nothing (revocation is enforced, INVARIANTS #12/#20)", () => {
-    const check = checkDelegationChain(
-      [delegation({ revoked: true })],
-      "device.forwarding",
-      T0,
-    );
+    const check = checkDelegationChain([delegation({ revoked: true })], "device.forwarding", T0);
     assert.equal(check.authorized, false);
     assert.match(check.reason ?? "", /delegation deleg-iso revoked/);
   });
