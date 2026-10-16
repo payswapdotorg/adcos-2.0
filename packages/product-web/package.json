@@ -1,0 +1,31 @@
+{
+  "name": "@adcos/product-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ADCOS product web surface — the Connectivity OS customer/product UI (desktop-runtime hosted)",
+  "type": "module",
+  "main": "src/contract.ts",
+  "exports": {
+    ".": "./src/contract.ts"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@adcos/contracts": "workspace:*",
+    "@adcos/surfaces": "workspace:*",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.2"
+  }
+}
