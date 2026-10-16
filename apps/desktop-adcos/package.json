@@ -1,0 +1,32 @@
+{
+  "name": "@adcos/desktop-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ADCOS Desktop — the Connectivity OS product as an Ubuntu desktop application (product-locked; the ZCode substrate app is not bundled or reachable)",
+  "author": "ADCOS 2.0 (payswapdotorg/adcos-2.0)",
+  "homepage": "https://github.com/payswapdotorg/adcos-2.0",
+  "type": "module",
+  "main": "out/main/index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "build:renderer": "pnpm --filter @adcos/product-web build && node scripts/copy-renderer.mjs",
+    "build:main": "node scripts/build-main.mjs",
+    "build": "pnpm build:renderer && pnpm build:main",
+    "package:linux": "electron-builder --linux --x64",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@adcos/surfaces": "workspace:*"
+  },
+  "devDependencies": {
+    "@adcos/contracts": "workspace:*",
+    "@adcos/product-web": "workspace:*",
+    "@types/node": "^20.10.0",
+    "electron": "^39.2.8",
+    "electron-builder": "26.0.12",
+    "esbuild": "^0.27.4",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
+  }
+}

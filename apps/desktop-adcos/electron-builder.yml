@@ -1,0 +1,55 @@
+appId: org.adcos.desktop
+productName: ADCOS
+copyright: ADCOS 2.0 — Connectivity OS (payswapdotorg/adcos-2.0)
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**
+  - package.json
+  - "!**/*.map"
+
+# Product lock: ONLY the ADCOS product runtime ships. The inherited ZCode
+# substrate app (packages/desktop @zcode/desktop) is not referenced and is
+# not bundled — unreachable by construction.
+extraMetadata:
+  name: adcos-desktop
+
+linux:
+  target:
+    - target: deb
+      arch: [x64]
+    - target: AppImage
+      arch: [x64]
+  category: Network
+  synopsis: ADCOS — Connectivity OS
+  description: >-
+    The ADCOS 2.0 Connectivity OS product surface as a desktop application:
+    resource enrollment and consent, Reality Lab evaluations, organizations,
+    group purchasing and the order lifecycle over the real merged ADCOS
+    domain packages with durable local state. Payments use opaque references
+    (ADR-0004); no live payment rail is claimed.
+  artifactName: adcos-desktop-${version}-${arch}.${ext}
+  maintainer: ADCOS 2.0
+  icon: build/icon.png
+
+deb:
+  artifactName: adcos-desktop_${version}_${arch}.${ext}
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libsecret-1-0
+    - libgbm1
+    - libasound2
+
+appImage:
+  artifactName: adcos-desktop-${version}-${arch}.${ext}
+
+asar: true

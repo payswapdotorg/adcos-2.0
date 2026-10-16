@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P4-W1 COMPLETE (round-2 merged 01e3f78: security batteries 52/52 — isolation 15, replay/partial-failure 11, abuse/collusion 11, budget 9, secrets 6 — plus threat-model doc + backup/restore/load plan + round-2 report with PROVEN/PARTIAL/GAP labels; scoped tsc/spec/architecture/lint/fmt green; P0-P3 complete; frontier P4-W2 (BLOCKED-ON-OPERATOR: live provider/hardware evidence per ADR-0004), then P5-W1 (gated on P4 acceptance)",
+  "status": "P5-W2 COMPLETE (ADCOS Desktop product shipped: packages/product-web + apps/desktop-adcos; Ubuntu deb + AppImage published as GitHub Release adcos-desktop-v1.0.0; 3/3 desktop battery; all gates green; product-locked — zero zcode in the shipped archive). P0-P3 complete; P4-W1 complete (52/52 security batteries); frontier P4-W2 (BLOCKED-ON-OPERATOR: live provider/hardware evidence per ADR-0004), then P5-W1 (gated on P4 acceptance)",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -19,7 +19,8 @@
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
   "frontier": [
-    "P4-W2"
+    "P4-W2",
+    "P5-W2"
   ],
   "active_work_orders": [],
   "completed_work_orders": [
@@ -185,6 +186,21 @@
         "TL re-gates independent: 52/52 across 5 batteries; scoped tsc -p test/security exit 0; spec PASSED; architecture 0/0/0; lint 0 errors; scoped oxfmt clean; pre-existing repo fmt debt unchanged (worker correctly reverted 43 non-owned normalizations)",
         "delivery: worker p4w1r2 (chat 0ec720b2) — full-report manifest harvest via batch store (218 blocks) after pod file API idle; resident watch verified plan -> batteries -> gates -> commit -> report sequence live"
       ]
+    },
+    {
+      "id": "P5-W2",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "operator directive 2026-10-16: downloadable Ubuntu desktop app of the ADCOS product itself (not the ZCode substrate app)",
+        "packages/product-web (@adcos/product-web 1.0.0) — the ADCOS product UI (vite + React 19 + tailwind 4, 226 kB bundle, ZERO @zcode/* dependencies): identity switcher (honest local demo identities), customer resources/consent machine/observation, Reality Lab evaluations, organization founding/membership, group purchase with the order lifecycle stepper, operator/developer role views, honest UNKNOWN/STALE/DEGRADED states",
+        "apps/desktop-adcos (@adcos/desktop-app 1.0.0) — Electron main composing the REAL createSurfacesService over the durable JSONL store (write-before-ack, restart-safe, injected clock) from the surfaces public contract; typed single-channel preload bridge; product-locked window (local files only, will-navigate guard, window-open denied)",
+        "gates: spec checker PASSED; architecture:check 0/0/0; oxlint 0/0 (24 files); product-web tsc exit 0; desktop tsc exit 0; desktop battery 3/3 (full-journey wiring, write-before-ack + restart recovery, role-gating negatives)",
+        "packaged artifacts: adcos-desktop_1.0.0_amd64.deb (80,365,602 B) + adcos-desktop-1.0.0-x86_64.AppImage (116,792,135 B) + SHA256SUMS.md + INSTALL-UBUNTU.md; dpkg-deb -I verified; asar list verified 0 zcode entries (835 files)",
+        "packaged-app smoke (Xvfb + CDP): window 'ADCOS — Connectivity OS' from app.asar/out/renderer/index.html; bridge session/enroll real round-trips; durable state verified on disk after enroll; all 7 panels render + panel clicks verified; evidence screenshots docs/reports/desktop/evidence-app-*.png; two real bugs found+fixed by the smoke loop (ESM __dirname banner; vite base './')",
+        "release: GitHub Release adcos-desktop-v1.0.0 on payswapdotorg/adcos-2.0 with deb/AppImage/SHA256SUMS/INSTALL-UBUNTU.md; anonymous download verified HTTP 200",
+        "delivery: worker dispatch attempted first (session p5w2, prompt server-verified; generation never opened — 429 drought class; nudge verified; watcher armed); lane executed by TL at the integration station per the recorded in-repo precedent; full report docs/reports/desktop/p5w2-report.md"
+      ],
+      "limitation": "Smoke-tested headless (Xvfb, --disable-gpu) on Debian; real-GPU rendering on the operator's Ubuntu machine expected but not evidenced from the sandbox. Local demo identities are not authentication. No live provider/physical-device/payment claims (ADR-0004; P4-W2 remains BLOCKED-ON-OPERATOR). The substrate renderer OOM debt (P0-W1) is untouched — this lane ships its own small renderer and does not build the zcode web app."
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."

@@ -1,6 +1,6 @@
 packages:
   - packages/*
-  - apps/zcode-cli
+  - apps/*
   - apps/zcode-cli/packages/*
   - apps/zcode-cli/tools/*
 supportedArchitectures:

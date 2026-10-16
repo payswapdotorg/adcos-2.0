@@ -95,6 +95,19 @@ modules:
     layers: { domain: domain, app: app, adapters: adapters }
     layerOrder: [domain, app, adapters]
     owner: instance-coordination
+  # --- P5-W2 desktop product distribution (operator directive 2026-10-16) ---
+  - id: product-web
+    roots: [packages/product-web/src]
+    managed: true
+    requires: [surfaces, contracts]
+    publicEntrypoints: [packages/product-web/src/contract.ts]
+    owner: product-surfaces
+  - id: desktop-adcos
+    roots: [apps/desktop-adcos/src]
+    managed: true
+    requires: [surfaces, product-web]
+    publicEntrypoints: [apps/desktop-adcos/src/contract.ts]
+    owner: product-surfaces
   - id: client
     roots: [packages/client/src]
     managed: false
