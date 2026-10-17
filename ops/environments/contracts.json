@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "workOrder": "P5-W1",
+  "product": "ADCOS Desktop (packages/product-web + apps/desktop-adcos, P5-W2)",
+  "law": "Every runtime input enumerated, typed, owned, sourced. Secrets declare an injection channel and never enter the repo, the JSONL state, or logs. Per-env deltas are bindings, not code flags.",
+  "inputs": [
+    {
+      "name": "electron.userData",
+      "type": "directory path",
+      "consumer": "apps/desktop-adcos/src/main/index.ts (app.getPath('userData'))",
+      "default": "OS per-user app-data dir for 'ADCOS' (e.g. ~/.config/ADCOS on Linux)",
+      "required": true,
+      "secret": false,
+      "allowedValues": "any per-user writable directory (Electron-managed)",
+      "notes": "Parent of the state store and the append-only main.log. Single-instance lock is per user session."
+    },
+    {
+      "name": "surfaces.statePath",
+      "type": "file path (JSONL)",
+      "consumer": "createSurfacesService (packages/surfaces/src/contract.ts) via JsonlSurfaceStateStore",
+      "default": "<userData>/state/adcos-state.jsonl",
+      "required": true,
+      "secret": false,
+      "allowedValues": "any writable file path; append-only JSONL",
+      "notes": "THE durable control-plane state. Journey events only; opaque payment references per ADR-0004 (never live payment data). Restore drill: ops/drills/restore-drill.md."
+    },
+    {
+      "name": "surfaces.operatorPrincipals",
+      "type": "readonly string[]",
+      "consumer": "createSurfacesService composition in apps/desktop-adcos/src/main/index.ts",
+      "default": "[\"ops@local\"]",
+      "required": false,
+      "secret": false,
+      "allowedValues": "principal ids (honest local demo identities in the shipped app)",
+      "notes": "Deployment configuration, not runtime state (surfaces contract law). Grants the operator aggregate view."
+    },
+    {
+      "name": "surfaces.developerPrincipals",
+      "type": "readonly string[]",
+      "consumer": "createSurfacesService composition in apps/desktop-adcos/src/main/index.ts",
+      "default": "[\"dev@local\"]",
+      "required": false,
+      "secret": false,
+      "allowedValues": "principal ids (honest local demo identities in the shipped app)",
+      "notes": "Deployment configuration, not runtime state. Grants the developer contract surface view."
+    },
+    {
+      "name": "surfaces.now",
+      "type": "() => number (epoch ms)",
+      "consumer": "createSurfacesService composition",
+      "default": "() => Date.now()",
+      "required": true,
+      "secret": false,
+      "allowedValues": "any injected clock; fixed clocks in tests/drills",
+      "notes": "Injected clock law — no ambient time inside the domain."
+    },
+    {
+      "name": "desktop.rendererAssets",
+      "type": "local file:// URL",
+      "consumer": "apps/desktop-adcos/src/main/index.ts createWindow",
+      "default": "<app.asar>/out/renderer/index.html",
+      "required": true,
+      "secret": false,
+      "allowedValues": "file:// URLs only, by construction (will-navigate guard; window-open denied)",
+      "notes": "Product lock: no remote URL can ever be loaded; the ZCode substrate is unreachable."
+    },
+    {
+      "name": "release.channel",
+      "type": "GitHub repo + tag",
+      "consumer": "operators/installers (INSTALL-UBUNTU.md flow)",
+      "default": "payswapdotorg/adcos-2.0 tag adcos-desktop-v1.0.0",
+      "required": true,
+      "secret": false,
+      "allowedValues": "any published release tag on payswapdotorg/adcos-2.0",
+      "notes": "Assets: adcos-desktop_<v>_amd64.deb, adcos-desktop-<v>-x86_64.AppImage, SHA256SUMS.md, INSTALL-UBUNTU.md — anonymous download, SHA256-verified."
+    },
+    {
+      "name": "build.ELECTRON_MIRROR",
+      "type": "URL (env var)",
+      "consumer": "build host only (electron binary download during pnpm install)",
+      "default": "unset (npm registry default)",
+      "required": false,
+      "secret": false,
+      "allowedValues": "https mirror base URL",
+      "notes": "Build-time only; never ships in the product."
+    },
+    {
+      "name": "publish.GITHUB_TOKEN",
+      "type": "token (env var)",
+      "consumer": "release publishing only (electron-builder publish / gh release flows at the integration station)",
+      "default": "unset",
+      "required": false,
+      "secret": true,
+      "channel": "environment variable of the publishing host (never the repo; never a file in the tree)",
+      "allowedValues": "GitHub PAT with repo write scope",
+      "notes": "The ONLY secret in the product's lifecycle. check-secrets.mjs fails the release gate if a ghp_/github_pat_ literal appears in tracked files."
+    },
+    {
+      "name": "substrate.config/*",
+      "type": "JSON files",
+      "consumer": "substrate (NOT the shipped product): packages/web, packages/desktop, zcode-cli",
+      "default": "config/default.json, config/provider/zcode-builtin.json",
+      "required": false,
+      "secret": false,
+      "allowedValues": "n/a",
+      "notes": "Inherited ZCode substrate config. NOT consumed by product-web/desktop-adcos (verified by import scan). Listed for scope honesty only."
+    }
+  ],
+  "adr0004": {
+    "law": "Live provider / hardware integration and payment-rail selection are BLOCKED-ON-OPERATOR (spec/adr/ADR-0004-payment-references.md).",
+    "environmentConsequence": "No environment binding in this file may reference live provider credentials or live payment rails. The shipped environments carry NO such inputs by construction."
+  }
+}
