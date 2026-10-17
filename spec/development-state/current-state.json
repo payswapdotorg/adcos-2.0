@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P5-W1 IN PROGRESS (deployment and production readiness: environment contracts, rollback, restore drill, monitoring, incident/support ops, retention/privacy, cost bounds, onboarding runbooks, staging + release gate — control plane + P5-W2 desktop distribution scope; live-provider deployment readiness remains BLOCKED-ON-OPERATOR per ADR-0004). P5-W2 COMPLETE (ADCOS Desktop product shipped: packages/product-web + apps/desktop-adcos; Ubuntu deb + AppImage published as GitHub Release adcos-desktop-v1.0.0; 3/3 desktop battery; all gates green; product-locked — zero zcode in the shipped archive). P0-P3 complete; P4-W1 complete (52/52 security batteries); P4-W2 BLOCKED-ON-OPERATOR (live provider/hardware evidence per ADR-0004).",
+  "status": "P5-W1 COMPLETE (deployment and production readiness: environment contracts, rollback+restore drill PASS, monitoring+health probe, incident/support ops, retention/privacy, cost bounds, onboarding runbooks, executable release gate 12/12 PASS incl. real staging smoke through the UI — control plane + desktop distribution scope). P5-W2 COMPLETE (ADCOS Desktop v1.0.0 released, anonymous 200 verified). P0-P4-W1 complete. REMAINING FRONTIER: P4-W2 BLOCKED-ON-OPERATOR (ADR-0004: live provider/hardware + payment-rail selection — operator decisions pending).",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -19,17 +19,9 @@
     "worker-3": "Reality Lab, Organizations, group purchasing, economic opportunities, and simulation"
   },
   "frontier": [
-    "P4-W2",
-    "P5-W1"
+    "P4-W2"
   ],
-  "active_work_orders": [
-    {
-      "id": "P5-W1",
-      "status": "IN_PROGRESS",
-      "owner": "TL (drought contingency: worker session p5w1 dispatched agents-tab GLM-5.3 Full-Stack, chat 10e6f7ad, generation blocked by the platform 429/null-commit drought; TL executes at the station per the recorded precedent — honestly labeled)",
-      "evidence": []
-    }
-  ],
+  "active_work_orders": [],
   "completed_work_orders": [
     {
       "id": "ARCH-BASELINE-001",
@@ -208,6 +200,19 @@
         "delivery: worker dispatch attempted first (session p5w2, prompt server-verified; generation never opened — 429 drought class; nudge verified; watcher armed); lane executed by TL at the integration station per the recorded in-repo precedent; full report docs/reports/desktop/p5w2-report.md"
       ],
       "limitation": "Smoke-tested headless (Xvfb, --disable-gpu) on Debian; real-GPU rendering on the operator's Ubuntu machine expected but not evidenced from the sandbox. Local demo identities are not authentication. No live provider/physical-device/payment claims (ADR-0004; P4-W2 remains BLOCKED-ON-OPERATOR). The substrate renderer OOM debt (P0-W1) is untouched — this lane ships its own small renderer and does not build the zcode web app."
+    },
+    {
+      "id": "P5-W1",
+      "status": "ACCEPTED_MERGED",
+      "evidence": [
+        "merge of branch work/p5-w1/deployment-readiness (commit 2876443)",
+        "ops/ environments+monitoring+retention+costs+incident+drills trees; docs/runbooks (developer, operator, release-gate, incident); scripts/ops (check-secrets, restore-drill, run-drills, health-probe, staging-smoke, release-gate)",
+        "restore drill REAL RUN: verdict PASS (13-step journey; snapshot sha256 exact match after corruption+restore; reopen view sha256 exact match; row parity res/org/purchase)",
+        "health probe REAL RUN on fixture: HEALTHY",
+        "release-gate.mjs REAL RUN: PASS 0 fails — 12/12 executable steps incl. staging through the REAL UI (Xvfb+CDP, bridge session+enroll applied, state grew 426->1123B)",
+        "check-secrets CLEAN; architecture 0/0/0; lint 0 errors; desktop battery 3/3",
+        "report: docs/reports/deployment/p5w1-report.md (TL-executed drought contingency honestly labeled; worker session p5w1 chat 10e6f7ad live, generation drought-blocked)"
+      ]
     }
   ],
   "acceptance_rule": "Do not mark implementation work complete without commits, reproducible tests, and the evidence required by its work order."
