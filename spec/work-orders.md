@@ -58,9 +58,11 @@ Outputs: authorized device/OS/operator combinations, link independence tests, me
 Acceptance: report device/OS/topology/window/method/failures and safe provider-plan assumptions; live provider claims only where live evidence exists; estimates separated from actuals.
 
 ## P5-W1 — Deployment and production readiness
-Owner: TL assigns deployment owner. Dependencies: P4 accepted.
+Owner: TL assigns deployment owner (lane p5w1). Dependencies: P4 accepted.
 Outputs: environment contracts, rollback, monitoring, incident/support operations, retention/privacy, cost bounds, onboarding runbooks, restore drill, staging and release gate.
 Acceptance: staging tested through real UI, recovery drill passed, credentials isolated, target-specific hardware/provider limits documented. Serverless control-plane hosting is not evidence that persistent packet forwarding is deployed.
+Owned paths (lane p5w1, additive only — zero edits outside them, no new managed modules, no package.json/architecture-policy/source changes): `ops/**` (environments, monitoring, retention, costs, incident, drills), `docs/runbooks/**` (developer + operator onboarding, release gate, incident playbook), `scripts/ops/**` (check-secrets, restore-drill, health-probe, run-drills, release-gate — `.mjs` on purpose: no TS sources in this lane), `docs/reports/deployment/**` (report + evidence), plus this section's owned-paths extension and the current-state frontier/active-entry updates only.
+Honesty law: this lane makes the SHIPPED product (P5-W2 desktop app + product-web, real `createSurfacesService` over the durable JSONL store) operationally deployable. It never claims live-provider deployment, live money movement, or persistent packet forwarding — those remain BLOCKED-ON-OPERATOR per ADR-0004/P4-W2. Anything the sandbox cannot execute is labeled PENDING-station with the exact command for the TL.
 
 ## P5-W2 — Desktop product distribution (Ubuntu)
 Owner: TL assigns one owner (operator directive 2026-10-16: a downloadable Ubuntu desktop app of the ADCOS product itself — NOT the inherited ZCode substrate app). Dependencies: P2 surface lanes accepted (surfaces/economics/lab/organizations/group-purchasing merged); explicitly NOT gated on P4-W2 — this is an operator-priority lane, and live provider/payment evidence remains BLOCKED-ON-OPERATOR per ADR-0004 and is never claimed here.

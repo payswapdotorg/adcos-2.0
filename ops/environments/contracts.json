@@ -1,0 +1,274 @@
+{
+  "schema_version": "p5w1-environment-contracts-1",
+  "work_order": "P5-W1",
+  "lane": "p5w1",
+  "scope": "SHIPPED product stack (P5-W2): packages/product-web + apps/desktop-adcos over the real createSurfacesService; plus P5-W1 ops tooling (scripts/ops/**)",
+  "laws": {
+    "noEnvVarMechanism": "The shipped product reads zero environment variables at runtime; runtime configuration is constructor arguments + frozen constants only (verified by static scan; see matrix.md).",
+    "bindingsNotFlags": "Environments differ by BINDINGS (state path, principals, clock), never by code flags; there is no env-flag mechanism in this repo.",
+    "frozenContractNamesUntouched": "ADCOS_IPC_CHANNEL, ADCOS_BRIDGE_GLOBAL, ADCOS_PAYMENT_NOTICE, AdcosRequest method vocabulary, surfaces public entrypoints — documented, never renamed."
+  },
+  "inputs": [
+    {
+      "name": "surfaces.statePath",
+      "kind": "constructor-argument",
+      "type": "string (filesystem path)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts -> createSurfacesService (packages/surfaces/src/contract.ts)",
+      "required": true,
+      "secret": false,
+      "default": null,
+      "allowedValues": "any writable path; the durable JSONL file is created on first persist, directory created on service construction",
+      "bindings": {
+        "dev": "<workspace temp dir>/adcos-state.jsonl (desktop battery: mkdtempSync)",
+        "staging": "<release-gate staging workspace>/staging-state.jsonl, seeded by the restore-drill fixture",
+        "production": "<Electron userData>/state/adcos-state.jsonl (Linux: ~/.config/adcos-desktop/state/adcos-state.jsonl)"
+      }
+    },
+    {
+      "name": "surfaces.now",
+      "kind": "constructor-argument",
+      "type": "() => number (epoch ms, injected clock)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts -> createSurfacesService",
+      "required": true,
+      "secret": false,
+      "default": null,
+      "allowedValues": "any deterministic function; the domain never reads ambient time",
+      "bindings": {
+        "dev": "() => Date.now() (tests inject FIXED_NOW)",
+        "staging": "() => Date.now() (drills inject a fixed clock)",
+        "production": "() => Date.now()"
+      }
+    },
+    {
+      "name": "surfaces.operatorPrincipals",
+      "kind": "constructor-argument",
+      "type": "readonly string[] (principals holding the operator role)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts -> createSurfacesService; role-gated by SurfacesService.getOperatorView",
+      "required": false,
+      "secret": false,
+      "default": "[] (operator views refused for everyone — fail closed)",
+      "allowedValues": "principal strings; deployment configuration, NOT runtime state",
+      "bindings": {
+        "dev": "[\"ops@local\"] (desktop battery)",
+        "staging": "[\"ops@local\"] (release-gate staging wiring)",
+        "production": "[\"ops@local\"] (shipped 1.0.0 — local demo identity, honestly labeled; NOT authentication)"
+      }
+    },
+    {
+      "name": "surfaces.developerPrincipals",
+      "kind": "constructor-argument",
+      "type": "readonly string[] (principals holding the developer role)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts -> createSurfacesService; role-gated by SurfacesService.getDeveloperView",
+      "required": false,
+      "secret": false,
+      "default": "[] (developer views refused for everyone — fail closed)",
+      "allowedValues": "principal strings; deployment configuration, NOT runtime state",
+      "bindings": {
+        "dev": "[\"dev@local\"] (desktop battery)",
+        "staging": "[\"dev@local\"] (release-gate staging wiring)",
+        "production": "[\"dev@local\"] (shipped 1.0.0 — local demo identity, honestly labeled)"
+      }
+    },
+    {
+      "name": "desktop.userDataPath",
+      "kind": "runtime-derived-path",
+      "type": "string (directory)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts (app.getPath(\"userData\")); Electron derives it from extraMetadata.name adcos-desktop",
+      "required": true,
+      "secret": false,
+      "default": null,
+      "allowedValues": "one directory per OS/user",
+      "bindings": {
+        "dev": "per temp harness (battery uses its own dirs)",
+        "staging": "n/a (staging runs the renderer against an explicit state file; the packaged app is not the staging vehicle)",
+        "production": "Linux(ProVEN, P5-W2 smoke): ~/.config/adcos-desktop; macOS(PENDING-station): ~/Library/Application Support/ADCOS; Windows(PENDING-station): %APPDATA%\\adcos-desktop"
+      }
+    },
+    {
+      "name": "desktop.mainLog",
+      "kind": "runtime-derived-path",
+      "type": "string (file, append-only lines: \"<ISO timestamp> <line>\")",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts logMain()",
+      "required": false,
+      "secret": false,
+      "default": null,
+      "allowedValues": "any path; written with appendFile, created on first write",
+      "bindings": {
+        "dev": "<userData>/main.log",
+        "staging": "n/a",
+        "production": "<userData>/main.log (Linux: ~/.config/adcos-desktop/main.log)"
+      }
+    },
+    {
+      "name": "desktop.ipcChannel",
+      "kind": "frozen-constant",
+      "type": "string",
+      "consumerModule": "apps/desktop-adcos/src/preload/index.ts + src/main/index.ts (ipcMain.handle)",
+      "required": true,
+      "secret": false,
+      "default": "adcos:request",
+      "allowedValues": "exactly \"adcos:request\" (frozen: ADCOS_IPC_CHANNEL)",
+      "bindings": { "dev": "adcos:request", "staging": "adcos:request (staging replaces the transport, not the vocabulary)", "production": "adcos:request" }
+    },
+    {
+      "name": "product.bridgeGlobal",
+      "kind": "frozen-constant",
+      "type": "string (window property name)",
+      "consumerModule": "apps/desktop-adcos/src/preload/index.ts (contextBridge.exposeInMainWorld) + packages/product-web/src/bridge.ts",
+      "required": true,
+      "secret": false,
+      "default": "__adcos_bridge__",
+      "allowedValues": "exactly \"__adcos_bridge__\" (frozen: ADCOS_BRIDGE_GLOBAL)",
+      "bindings": { "dev": "__adcos_bridge__", "staging": "__adcos_bridge__ (injected before page scripts)", "production": "__adcos_bridge__" }
+    },
+    {
+      "name": "product.localPrincipals",
+      "kind": "frozen-constant",
+      "type": "readonly {principal,note,role}[]",
+      "consumerModule": "apps/desktop-adcos/src/contract.ts (ADCOS_LOCAL_PRINCIPALS) -> router listPrincipals",
+      "required": true,
+      "secret": false,
+      "default": "[ada@local, grace@local, ops@local, dev@local] — local demo identities, honestly labeled, NOT authenticated accounts",
+      "allowedValues": "frozen for 1.0.0",
+      "bindings": { "dev": "same frozen list", "staging": "same frozen list", "production": "same frozen list" }
+    },
+    {
+      "name": "product.defaultPrincipal",
+      "kind": "frozen-constant",
+      "type": "string",
+      "consumerModule": "apps/desktop-adcos/src/main/session.ts (DesktopSession boots with ADCOS_DEFAULT_PRINCIPAL)",
+      "required": true,
+      "secret": false,
+      "default": "ada@local",
+      "allowedValues": "frozen for 1.0.0",
+      "bindings": { "dev": "ada@local", "staging": "ada@local", "production": "ada@local" }
+    },
+    {
+      "name": "desktop.windowPolicy",
+      "kind": "frozen-constant",
+      "type": "object (geometry + webPreferences + product lock)",
+      "consumerModule": "apps/desktop-adcos/src/main/index.ts createWindow()",
+      "required": true,
+      "secret": false,
+      "default": "1280x840 (min 960x640); contextIsolation:true, nodeIntegration:false, sandbox:true; will-navigate restricted to file://; window-open denied; single-instance lock",
+      "allowedValues": "frozen for 1.0.0",
+      "bindings": { "dev": "same", "staging": "n/a (renderer staged under headless chromium)", "production": "same" }
+    },
+    {
+      "name": "ops.healthProbe.state",
+      "kind": "cli-argument",
+      "type": "string (--state <path> to a JSONL store)",
+      "consumerModule": "scripts/ops/health-probe.mjs",
+      "required": false,
+      "secret": false,
+      "default": null,
+      "allowedValues": "existing JSONL state file",
+      "bindings": { "dev": "any store", "staging": "drill fixture store", "production": "~/.config/adcos-desktop/state/adcos-state.jsonl" }
+    },
+    {
+      "name": "ops.healthProbe.desktop",
+      "kind": "cli-argument",
+      "type": "string (--desktop <profileDir>: checks <profileDir>/state/adcos-state.jsonl + main.log)",
+      "consumerModule": "scripts/ops/health-probe.mjs",
+      "required": false,
+      "secret": false,
+      "default": null,
+      "allowedValues": "installed app profile dir (Electron userData)",
+      "bindings": { "dev": "n/a", "staging": "n/a", "production": "~/.config/adcos-desktop" }
+    },
+    {
+      "name": "ops.restoreDrill.out",
+      "kind": "cli-argument",
+      "type": "string (--out <dir>: drill workspace; default mkdtemp)",
+      "consumerModule": "scripts/ops/restore-drill.mjs",
+      "required": false,
+      "secret": false,
+      "default": "<tmpdir>/adcos-restore-drill-<timestamp>",
+      "allowedValues": "any writable directory (created if absent)",
+      "bindings": { "dev": "temp dir (auto-cleaned unless --keep)", "staging": ".run-logs/ops/drill-workspace (release gate, gitignored)", "production": "operator-chosen scratch dir" }
+    },
+    {
+      "name": "ops.releaseGate.stagingPort",
+      "kind": "cli-argument",
+      "type": "number (--staging-port <port>: local HTTP port serving the built product-web dist; default 4173)",
+      "consumerModule": "scripts/ops/release-gate.mjs",
+      "required": false,
+      "secret": false,
+      "default": 4173,
+      "allowedValues": "any free localhost port",
+      "bindings": { "dev": "4173", "staging": "4173 (loopback only)", "production": "n/a (gate is a station tool)" }
+    }
+  ],
+  "substrateSurfaces": [
+    {
+      "name": "config/default.json",
+      "path": "config/default.json",
+      "consumedBy": "INHERITED ZCODE SUBSTRATE settings/help tooling (packages/shared settings sources) — NOT consumed by the shipped ADCOS desktop app (product-locked; verified 0 zcode entries in the shipped asar, P5-W2)",
+      "keys": [
+        { "name": "feedback_url", "type": "string (URL)", "secret": false },
+        { "name": "feedback_use_external_form", "type": "boolean", "secret": false },
+        { "name": "community_urls.zh-CN", "type": "string (URL)", "secret": false },
+        { "name": "community_urls.en-US", "type": "string (URL)", "secret": false }
+      ]
+    },
+    {
+      "name": "config/provider/zcode-builtin.json",
+      "path": "config/provider/zcode-builtin.json",
+      "consumedBy": "INHERITED ZCODE SUBSTRATE provider tooling (packages/provider-node zcode-builtin provider config source) — NOT consumed by the shipped ADCOS desktop app",
+      "keys": [
+        { "name": "schemaVersion", "type": "number", "secret": false },
+        { "name": "revision", "type": "number", "secret": false },
+        { "name": "config.providerConfigRules.templateRules[].templateId", "type": "string (e.g. zai-api, zai-standard-api)", "secret": false },
+        { "name": "config.providerConfigRules.templateRules[].config.access.type", "type": "enum string (zhipu-coding-plan-api-key | api-key)", "secret": false },
+        { "name": "config.providerConfigRules.templateRules[].config.access.apiKeyManagementUrl", "type": "string (URL)", "secret": false },
+        { "name": "config.providerConfigRules.templateRules[].config.api.baseUrl", "type": "string (URL)", "secret": false },
+        { "name": "config.providerConfigRules.templateRules[].config.builtinModelIds", "type": "string[] (model ids)", "secret": false }
+      ],
+      "note": "TEMPLATES ONLY: no literal credential values are committed; live keys are injected at substrate runtime through the declared secret channels and never touch this repo or the ADCOS product."
+    }
+  ],
+  "secrets": [
+    {
+      "name": "github.publishToken",
+      "protects": "GitHub release publication (electron-builder publish / gh release upload) for adcos-desktop-v* releases",
+      "secret": true,
+      "presentInRepo": false,
+      "presentInJsonlState": false,
+      "presentInLogs": false,
+      "injectionChannel": "environment variable (GH_TOKEN / GITHUB_TOKEN), set only in the publishing shell at the integration station",
+      "filePermissions": null
+    },
+    {
+      "name": "substrate.providerApiKey",
+      "protects": "INHERITED substrate provider credentials (zai-api / zai-standard-api templates; NOT used by the ADCOS product)",
+      "secret": true,
+      "presentInRepo": false,
+      "presentInJsonlState": false,
+      "presentInLogs": false,
+      "injectionChannel": "OS keyring (substrate desktop settings) or environment variable; template files carry only the access TYPE, never the value",
+      "filePermissions": null
+    },
+    {
+      "name": "operator.adcosReleaseSigningKey",
+      "protects": "IF the operator later signs release assets (not currently practiced: v1.0.0 ships SHA256SUMS only)",
+      "secret": true,
+      "presentInRepo": false,
+      "presentInJsonlState": false,
+      "presentInLogs": false,
+      "injectionChannel": "file with permissions 0600, path supplied out-of-band; never committed",
+      "filePermissions": "0600"
+    }
+  ],
+  "unknowns": [
+    {
+      "name": "liveProviderCredentials",
+      "status": "UNKNOWN — BLOCKED-ON-OPERATOR (ADR-0004/P4-W2)",
+      "note": "No live provider integration exists; credential shapes, rotation policy and cost are never estimated as if known."
+    },
+    {
+      "name": "paymentRailCredentials",
+      "status": "UNKNOWN — BLOCKED-ON-OPERATOR (ADR-0004; rail selection is an operator decision)",
+      "note": "Purchases persist OPAQUE typed payment references only; no rail semantics exist anywhere in the shipped product."
+    }
+  ]
+}
