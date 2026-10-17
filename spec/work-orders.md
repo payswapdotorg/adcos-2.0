@@ -58,7 +58,8 @@ Outputs: authorized device/OS/operator combinations, link independence tests, me
 Acceptance: report device/OS/topology/window/method/failures and safe provider-plan assumptions; live provider claims only where live evidence exists; estimates separated from actuals.
 
 ## P5-W1 — Deployment and production readiness
-Owner: TL assigns deployment owner. Dependencies: P4 accepted.
+Owner: TL assigns deployment owner. Dependencies: P4 accepted. Dependency state at dispatch (2026-10-17): P4-W1 ACCEPTED_MERGED (52/52 security batteries); P4-W2 BLOCKED-ON-OPERATOR per ADR-0004 (live provider/hardware + payment-rail selection — operator decisions pending). This lane therefore ships production readiness for the CONTROL PLANE and the desktop product distribution (P5-W2), and documents live-provider deployment readiness as the BLOCKED remainder — never claimed as done (the acceptance law below says exactly this).
+Owned paths (additive; zero edits elsewhere): `ops/**` (environments, monitoring, retention, costs, incident, drills), `docs/runbooks/**`, `scripts/ops/**`, `docs/reports/deployment/**`, plus ONLY the frontier/active-work-order fields in `spec/development-state/current-state.json` and the owned-paths lines in this section.
 Outputs: environment contracts, rollback, monitoring, incident/support operations, retention/privacy, cost bounds, onboarding runbooks, restore drill, staging and release gate.
 Acceptance: staging tested through real UI, recovery drill passed, credentials isolated, target-specific hardware/provider limits documented. Serverless control-plane hosting is not evidence that persistent packet forwarding is deployed.
 

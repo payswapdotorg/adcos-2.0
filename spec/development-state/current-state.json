@@ -10,7 +10,7 @@
     "version": "3.14.3",
     "policy": "pinned; no silent tracking of upstream main"
   },
-  "status": "P5-W2 COMPLETE (ADCOS Desktop product shipped: packages/product-web + apps/desktop-adcos; Ubuntu deb + AppImage published as GitHub Release adcos-desktop-v1.0.0; 3/3 desktop battery; all gates green; product-locked — zero zcode in the shipped archive). P0-P3 complete; P4-W1 complete (52/52 security batteries); frontier P4-W2 (BLOCKED-ON-OPERATOR: live provider/hardware evidence per ADR-0004), then P5-W1 (gated on P4 acceptance)",
+  "status": "P5-W1 IN PROGRESS (deployment and production readiness: environment contracts, rollback, restore drill, monitoring, incident/support ops, retention/privacy, cost bounds, onboarding runbooks, staging + release gate — control plane + P5-W2 desktop distribution scope; live-provider deployment readiness remains BLOCKED-ON-OPERATOR per ADR-0004). P5-W2 COMPLETE (ADCOS Desktop product shipped: packages/product-web + apps/desktop-adcos; Ubuntu deb + AppImage published as GitHub Release adcos-desktop-v1.0.0; 3/3 desktop battery; all gates green; product-locked — zero zcode in the shipped archive). P0-P3 complete; P4-W1 complete (52/52 security batteries); P4-W2 BLOCKED-ON-OPERATOR (live provider/hardware evidence per ADR-0004).",
   "max_concurrent_direct_workers": 3,
   "tech_lead_is_worker": false,
   "worker_lanes": {
@@ -20,9 +20,16 @@
   },
   "frontier": [
     "P4-W2",
-    "P5-W2"
+    "P5-W1"
   ],
-  "active_work_orders": [],
+  "active_work_orders": [
+    {
+      "id": "P5-W1",
+      "status": "IN_PROGRESS",
+      "owner": "TL (drought contingency: worker session p5w1 dispatched agents-tab GLM-5.3 Full-Stack, chat 10e6f7ad, generation blocked by the platform 429/null-commit drought; TL executes at the station per the recorded precedent — honestly labeled)",
+      "evidence": []
+    }
+  ],
   "completed_work_orders": [
     {
       "id": "ARCH-BASELINE-001",
