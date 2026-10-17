@@ -1,0 +1,78 @@
+# P5-W1 gate transcripts — captured 2026-10-17T10:25:09Z at repo d4d4436 on branch work/p5-w1/deployment-readiness
+
+$ node scripts/check-project-spec.mjs
+ADCOS 2.0 project-spec check PASSED (15 required files; 5 locked sections; 12 unique work orders; current-state, architecture version, and frontier valid)
+exit=0
+
+$ pnpm architecture:check
+
+architecture: OK
+violations: 0
+baseline: 0
+new: 0
+exit=0
+
+$ pnpm lint   (repo-wide; P5-W1 contribution: scripts/ops/*.mjs + docs — verify 0 errors)
+
+Found 73 warnings and 0 errors.
+Finished in 539ms on 2749 files using 2 threads.
+exit=0
+
+$ npx oxlint scripts/ops   (lane-owned files specifically)
+Found 0 warnings and 0 errors.
+Finished in 10ms on 5 files with 94 rules using 2 threads.
+exit=0
+
+$ node --import tsx scripts/ops/restore-drill.mjs   (the restore drill, fresh)
+[restore-drill] phase seed: ok (7.999 ms)
+[restore-drill]   check seed: 10 applied commands, write-before-ack grew the log to 10 lines: ok — {"lines":10,"snapshots":10}
+[restore-drill]   check seed: zero torn lines in the pristine log: ok
+[restore-drill] phase snapshot: ok (0.79 ms)
+[restore-drill]   check snapshot: content hash verified (re-hash equal, 10 parseable lines): ok — {"sha256":"3a3f719e9c51f19951c42620a938dcdb9b5c149bca81af98b60f7ea31881d2a2","bytes":15764}
+[restore-drill]   check fixture: pristine seeded log preserved for staging: ok
+[restore-drill] phase corrupt-torn-tail: ok (1.326 ms)
+[restore-drill] phase corrupt-total-loss: ok (0.301 ms)
+[restore-drill] phase restore: ok (0.422 ms)
+[restore-drill]   check restore: 10 snapshots re-folded, 0 torn lines on the clean backup: ok — {"snapshots":10,"tornLines":0}
+[restore-drill]   check restore: order lifecycle state survived EXACTLY: ok — {"requestId":"req-drill-1","orderState":"ORDERED"}
+[restore-drill]   check restore: consent state survived (resource share): ok — {"share":"SHARED"}
+[restore-drill]   check restore: operator aggregate view available to the configured operator: ok
+[restore-drill]   check restore: role gating fails closed after restore (customer refused): ok — {"reason":"principal 'ada@local' does not hold the operator role"}
+[restore-drill]   check restore: instance writable + write-before-ack (benign write grew the log before ack): ok — {"lines_before":10,"lines_after_pause":11,"lines_after_resume":12}
+[restore-drill]   check restore: post-restore writes survive a further restart: ok
+[restore-drill] phase verify-reopen: ok (3.432 ms)
+[restore-drill] verdict PASS in 14.27 ms — report /tmp/drill-gate-final/drill-report.json
+exit=0
+
+$ node scripts/ops/run-drills.mjs
+[run-drills] restore-drill: node --import tsx scripts/ops/restore-drill.mjs
+[restore-drill] verdict PASS in 14.912 ms — report /tmp/adcos-restore-drill-gc7kD5/drill-report.json
+[run-drills] restore-drill: PASS (exit 0)
+[run-drills] all 1 drill(s) passed
+exit=0
+
+$ node scripts/ops/check-secrets.mjs
+ADCOS P5-W1 secrets check PASSED (7313 tracked files; 7220 text files scanned, 43162882 bytes; 7 secret patterns; credential-file name pass; contracts 0600 injection-channel law valid; 1 documented sanitizer exemption(s) honored)
+exit=0
+
+$ node --import tsx scripts/ops/health-probe.mjs --state <drill fixture> (final gate fixture)
+  "verdict": "HEALTHY"
+[health-probe] verdict: HEALTHY
+exit=0
+
+$ node --import tsx scripts/ops/release-gate.mjs --report docs/reports/deployment/evidence/release-gate-report.json --evidence docs/reports/deployment/evidence   (full checklist)
+[release-gate] spec checker (node scripts/check-project-spec.mjs): PASS (35 ms)
+[release-gate] secrets check (node scripts/ops/check-secrets.mjs): PASS (1134 ms)
+[release-gate] restore drill fresh pass (node --import tsx scripts/ops/restore-drill.mjs): PASS (370 ms)
+[release-gate] health probe on the drill fixture: PASS (317 ms)
+[release-gate] staging through the real UI (built product-web + real bridge round-trip): PASS (2065 ms)
+[release-gate] architecture check (node scripts/architecture/architecture-check.mjs check): PASS (641 ms)
+[release-gate] product lint (npx oxlint packages/product-web apps/desktop-adcos): PASS (317 ms)
+[release-gate] product typechecks (tsc --noEmit, product-web + desktop-adcos): PASS (6073 ms)
+[release-gate] desktop battery (node --import tsx --test test/router.test.ts): PASS (429 ms)
+[release-gate] PENDING-station: package linux artifacts (deb + AppImage + SHA256SUMS) — run: cd apps/desktop-adcos && pnpm package:linux && sha256sum release/adcos-desktop_1.0.0_amd64.deb release/adcos-desktop-1.0.0-x86_64.AppImage > SHA256SUMS.md
+[release-gate] PENDING-station: anonymous download verification (post-publish) — run: node --import tsx scripts/ops/health-probe.mjs --release-channel adcos-desktop-v<version>
+[release-gate] PENDING-station: real-GPU packaged-app smoke on the operator Ubuntu machine — run: install the deb from the release; launch; verify the 7 panels + one enroll round-trip; evidence screenshots
+[release-gate] PENDING-station: current-state.json + work-orders.md evidence update — run: edit spec/development-state/current-state.json (frontier/completed evidence) + the lane evidence in spec/work-orders.md
+[release-gate] verdict PASS — 9/9 steps PASS, 4 PENDING-station item(s), 0 hard failure(s) — report /home/z/adcos-2.0/.run-logs/ops/gate-workspace/release-gate-report.json (+ /home/z/adcos-2.0/docs/reports/deployment/evidence/release-gate-report.json)
+exit=0

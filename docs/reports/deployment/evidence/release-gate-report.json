@@ -1,0 +1,121 @@
+{
+  "gate": "p5-w1 release gate",
+  "work_order": "P5-W1",
+  "lane": "p5w1",
+  "started_at": "2026-10-17T10:25:24.791Z",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "linux x64",
+    "repo_root": "/home/z/adcos-2.0"
+  },
+  "steps": [
+    {
+      "name": "spec checker (node scripts/check-project-spec.mjs)",
+      "status": "PASS",
+      "ms": 35,
+      "exit_code": 0,
+      "summary": "ADCOS 2.0 project-spec check PASSED (15 required files; 5 locked sections; 12 unique work orders; current-state, architecture version, and frontier valid)"
+    },
+    {
+      "name": "secrets check (node scripts/ops/check-secrets.mjs)",
+      "status": "PASS",
+      "ms": 1134,
+      "exit_code": 0,
+      "summary": "ADCOS P5-W1 secrets check PASSED (7313 tracked files; 7220 text files scanned, 43162882 bytes; 7 secret patterns; credential-file name pass; contracts 0600 injection-channel law valid; 1 documented sanitizer exemption(s) honored)"
+    },
+    {
+      "name": "restore drill fresh pass (node --import tsx scripts/ops/restore-drill.mjs)",
+      "status": "PASS",
+      "ms": 370,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "total_ms": 15.168,
+      "workspace": "/home/z/adcos-2.0/.run-logs/ops/gate-workspace/drill"
+    },
+    {
+      "name": "health probe on the drill fixture",
+      "status": "PASS",
+      "ms": 317,
+      "exit_code": 0
+    },
+    {
+      "name": "staging through the real UI (built product-web + real bridge round-trip)",
+      "status": "PASS",
+      "ms": 2065,
+      "renderer_built": false,
+      "renderer_note": "dist present (built per P5-W2 invocation)",
+      "staging_url": "http://127.0.0.1:4173/index.html",
+      "chromium": "/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome",
+      "roundtrip": {
+        "method": "enrollResource",
+        "applied_resource": "res-gate-1",
+        "staging_state_before": 10,
+        "staging_state_after": 11
+      },
+      "screenshots": [
+        "/home/z/adcos-2.0/docs/reports/deployment/evidence/staging-identity.png",
+        "/home/z/adcos-2.0/docs/reports/deployment/evidence/staging-resources.png",
+        "/home/z/adcos-2.0/docs/reports/deployment/evidence/staging-purchase.png",
+        "/home/z/adcos-2.0/docs/reports/deployment/evidence/staging-enroll-roundtrip.png"
+      ],
+      "transport_note": "CDP page binding replaces the Electron IPC channel only; the bridge contract (AdcosBridge.call), the desktop router, the session, the surfaces service and the durable JSONL store are the REAL shipped wiring. The Electron IPC/preload layer itself is proven by the P5-W2 packaged-app smoke."
+    },
+    {
+      "name": "architecture check (node scripts/architecture/architecture-check.mjs check)",
+      "status": "PASS",
+      "ms": 641,
+      "exit_code": 0,
+      "summary": "new: 0"
+    },
+    {
+      "name": "product lint (npx oxlint packages/product-web apps/desktop-adcos)",
+      "status": "PASS",
+      "ms": 317,
+      "exit_code": 0,
+      "summary": "Finished in 11ms on 24 files with 94 rules using 2 threads."
+    },
+    {
+      "name": "product typechecks (tsc --noEmit, product-web + desktop-adcos)",
+      "status": "PASS",
+      "ms": 6073,
+      "exit_codes": {
+        "product_web": 0,
+        "desktop_adcos": 0
+      }
+    },
+    {
+      "name": "desktop battery (node --import tsx --test test/router.test.ts)",
+      "status": "PASS",
+      "ms": 429,
+      "exit_code": 0,
+      "summary": "ℹ duration_ms 388.540379"
+    }
+  ],
+  "pending_station": [
+    {
+      "name": "package linux artifacts (deb + AppImage + SHA256SUMS)",
+      "command": "cd apps/desktop-adcos && pnpm package:linux && sha256sum release/adcos-desktop_1.0.0_amd64.deb release/adcos-desktop-1.0.0-x86_64.AppImage > SHA256SUMS.md",
+      "why": "packaging runs at the integration station with electron-builder caches; artifacts are release-time, not gate-time"
+    },
+    {
+      "name": "anonymous download verification (post-publish)",
+      "command": "node --import tsx scripts/ops/health-probe.mjs --release-channel adcos-desktop-v<version>",
+      "why": "assets exist only AFTER the GitHub Release is published; the gate runs pre-publish"
+    },
+    {
+      "name": "real-GPU packaged-app smoke on the operator Ubuntu machine",
+      "command": "install the deb from the release; launch; verify the 7 panels + one enroll round-trip; evidence screenshots",
+      "why": "sandbox smoke ran headless Xvfb (--disable-gpu) in P5-W2; real-GPU rendering is operator-host evidence"
+    },
+    {
+      "name": "current-state.json + work-orders.md evidence update",
+      "command": "edit spec/development-state/current-state.json (frontier/completed evidence) + the lane evidence in spec/work-orders.md",
+      "why": "human station step: governance files are updated by the TL at acceptance, not by the gate"
+    }
+  ],
+  "verdict": "PASS",
+  "finished_at": "2026-10-17T10:25:36.173Z",
+  "hard_failures": [],
+  "workspace": "/home/z/adcos-2.0/.run-logs/ops/gate-workspace",
+  "evidence_dir": "/home/z/adcos-2.0/docs/reports/deployment/evidence"
+}

@@ -1,0 +1,139 @@
+{
+  "drill": "p5-w1 restore drill",
+  "work_order": "P5-W1",
+  "lane": "p5w1",
+  "started_at": "2026-10-17T10:27:42.948Z",
+  "clock": "fixed (epoch ms 1800000000000)",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "linux x64",
+    "repo_root": "/home/z/adcos-2.0"
+  },
+  "scope": "control-plane state durability of the surfaces JSONL store; NOT live provider recovery; NOT payment settlement (ADR-0004 BLOCKED-ON-OPERATOR)",
+  "phases": [
+    {
+      "name": "seed",
+      "ms": 7.801,
+      "ok": true,
+      "applied_commands": 10,
+      "durability": {
+        "snapshots": 10,
+        "tornLines": 0
+      },
+      "log_lines": 10
+    },
+    {
+      "name": "snapshot",
+      "ms": 0.768,
+      "ok": true,
+      "bytes": 15764,
+      "sha256": "3a3f719e9c51f19951c42620a938dcdb9b5c149bca81af98b60f7ea31881d2a2",
+      "lines": 10
+    },
+    {
+      "name": "corrupt-torn-tail",
+      "ms": 1.23,
+      "ok": true,
+      "durability": {
+        "snapshots": 10,
+        "tornLines": 1
+      }
+    },
+    {
+      "name": "corrupt-total-loss",
+      "ms": 0.286,
+      "ok": true,
+      "durability_after_loss": {
+        "snapshots": 0,
+        "tornLines": 3
+      },
+      "view_resources_after_loss": 0
+    },
+    {
+      "name": "restore",
+      "ms": 0.222,
+      "ok": true,
+      "restored_sha256": "3a3f719e9c51f19951c42620a938dcdb9b5c149bca81af98b60f7ea31881d2a2",
+      "restored_lines": 10
+    },
+    {
+      "name": "verify-reopen",
+      "ms": 1.483,
+      "ok": true,
+      "durability": {
+        "snapshots": 10,
+        "tornLines": 0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "seed: 10 applied commands, write-before-ack grew the log to 10 lines",
+      "ok": true,
+      "lines": 10,
+      "snapshots": 10
+    },
+    {
+      "name": "seed: zero torn lines in the pristine log",
+      "ok": true
+    },
+    {
+      "name": "snapshot: content hash verified (re-hash equal, 10 parseable lines)",
+      "ok": true,
+      "sha256": "3a3f719e9c51f19951c42620a938dcdb9b5c149bca81af98b60f7ea31881d2a2",
+      "bytes": 15764
+    },
+    {
+      "name": "fixture: pristine seeded log preserved for staging",
+      "ok": true
+    },
+    {
+      "name": "restore: 10 snapshots re-folded, 0 torn lines on the clean backup",
+      "ok": true,
+      "snapshots": 10,
+      "tornLines": 0
+    },
+    {
+      "name": "restore: order lifecycle state survived EXACTLY",
+      "ok": true,
+      "requestId": "req-drill-1",
+      "orderState": "ORDERED"
+    },
+    {
+      "name": "restore: consent state survived (resource share)",
+      "ok": true,
+      "share": "SHARED"
+    },
+    {
+      "name": "restore: operator aggregate view available to the configured operator",
+      "ok": true
+    },
+    {
+      "name": "restore: role gating fails closed after restore (customer refused)",
+      "ok": true,
+      "reason": "principal 'ada@local' does not hold the operator role"
+    },
+    {
+      "name": "restore: instance writable + write-before-ack (benign write grew the log before ack)",
+      "ok": true,
+      "lines_before": 10,
+      "lines_after_pause": 11,
+      "lines_after_resume": 12
+    },
+    {
+      "name": "restore: post-restore writes survive a further restart",
+      "ok": true
+    }
+  ],
+  "verdict": "PASS",
+  "workspace": "/tmp/drill-final-evidence",
+  "paths": {
+    "live": "/tmp/drill-final-evidence/live/adcos-state.jsonl",
+    "backup": "/tmp/drill-final-evidence/backup/adcos-state.jsonl",
+    "fixture": "/tmp/drill-final-evidence/fixture/adcos-state.jsonl",
+    "report": "/tmp/drill-final-evidence/drill-report.json"
+  },
+  "finished_at": "2026-10-17T10:27:42.961Z",
+  "failures": [],
+  "total_ms": 11.79
+}
